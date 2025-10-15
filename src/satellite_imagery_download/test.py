@@ -52,10 +52,10 @@ target_layer = 'msg_fes__clm'
 #     print("Format option: ", iter_format_option)
 
 # select format option
-format_option = 'image/tiff'
+format_option = 'image/png'
 
 # Define region of interest
-region = (18, 65, 24, 45) # order is lon1,lat1,lon2,lat2
+region = (18, 45, 24, 65) # order is lon1,lat1,lon2,lat2
 
 # Set date and time 
 time = ('2020-10-16T11:40:00.000Z','2020-10-16T12:50:00.000')
@@ -71,5 +71,9 @@ payload = {
 }
 
 output = wcs.getCoverage(**payload)
+
+#kod för att spara output bild
+with open("images/coverage1.png", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
+    f.write(output.read()) #skriver till output med binärkod till PNG filen
 
 print(output)
