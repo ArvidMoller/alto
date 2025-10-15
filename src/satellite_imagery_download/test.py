@@ -23,3 +23,53 @@ import ssl
 # Turn off SSL certificate verification warnings
 ssl._create_default_https_context = ssl._create_unverified_context
 warnings.simplefilter("ignore")
+
+
+# Insert your personal key and secret into the single quotes
+consumer_key = 'C7TfIeUyTcIySIZJFfJzQtrSCnga'
+consumer_secret = 'fnflmHejlSooN3clA5vyEnJFVuwa'
+
+# Provide the credentials (key, secret) for generating a token
+credentials = (consumer_key, consumer_secret)
+
+# Create a token object from the credentials
+token = eumdac.AccessToken(credentials)
+
+# Print the token and its expiration time
+# print(f"This token '{token}' expires {token.expiration}")
+
+# Set up the authorization headers for future requests
+auth_headers = {"Authorization": f"Bearer {token.access_token}"}
+
+service_url = 'https://view.eumetsat.int/geoserver/wcs?'
+wcs = WebCoverageService(service_url, auth=Authentication(verify=False), version='2.0.1', timeout=120)
+
+# Viket layer vi vill ha
+target_layer = 'msg_fes__clm'
+
+# check available output format options for layer 0: OLCI
+# for iter_format_option in wcs.contents[target_layers[0]].supportedFormats:
+#     print("Format option: ", iter_format_option)
+
+# select format option
+format_option = 'image/tiff'
+
+# Define region of interest
+region = (18, 65, 24, 45) # order is lon1,lat1,lon2,lat2
+
+# Set date and time 
+time = ('2020-10-16T11:40:00.000Z','2020-10-16T12:50:00.000')
+
+payload = {
+    'identifier' : [target_layer,],
+    'format' : format_option,
+    'crs' : 'EPSG:4326',\
+    'subsets' : [('Lat',region[1],region[3]),\
+                 ('Long',region[0],region[2]), \
+                 ('Time',time[0],time[1])],
+    'access_token': token
+}
+
+output = wcs.getCoverage(**payload)
+
+print(output)
