@@ -1,22 +1,9 @@
-import os
-import sys
 import warnings
-from IPython.core.display import HTML
 from IPython.display import Image
 from owslib.wcs import WebCoverageService
 from owslib.util import Authentication
 from owslib.fes import *
-from time import sleep
-import requests
-import xml
-from xml.etree import ElementTree
-import netCDF4 as nc
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import numpy as np
 import datetime
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import eumdac
 import ssl
 import datetime
@@ -46,10 +33,6 @@ wcs = WebCoverageService(service_url, auth=Authentication(verify=False), version
 
 # Viket layer vi vill ha
 target_layer = 'msg_fes__clm'
-
-# check available output format options for layer 0: OLCI
-# for iter_format_option in wcs.contents[target_layers[0]].supportedFormats:
-#     print("Format option: ", iter_format_option)
 
 # select format option
 format_option = 'image/png'
@@ -85,13 +68,4 @@ while (start_date <= end_date):
     with open(f"images/{time[1].replace(":", "-")}.png", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
         f.write(output.read()) #skriver till output med binärkod till PNG filen
 
-    print(output)
-
-
-
-
-
-
-# year = ["2020", "2021", "2022", "2023", "2024", "2025"]
-# month = ["1", "12"]
-# day = ["1", "31"]
+    print(output, time[1])
