@@ -40,11 +40,11 @@ target_layer = 'msg_fes__clm'
 format_option = 'image/png'
 
 # Define region of interest
-region = (-20, 35, 25, 65) # order is lon1,lat1,lon2,lat2
+region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration
 start_date = datetime.datetime(2025, 10, 17, 00, 00, 00, 000)
-end_date = datetime.datetime(2025, 10, 17, 4, 00, 00, 000)
+end_date = datetime.datetime(2025, 10, 17, 00, 00, 00, 000)
 delta = datetime.timedelta(minutes=15)
 
 mask_input = input("Should blue and green be changed to black? (y/n)")
