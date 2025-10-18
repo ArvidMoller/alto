@@ -1,5 +1,4 @@
 import warnings
-from IPython.display import Image
 from owslib.wcs import WebCoverageService
 from owslib.util import Authentication
 from owslib.fes import *
@@ -24,9 +23,6 @@ credentials = (consumer_key, consumer_secret)
 # Create a token object from the credentials
 token = eumdac.AccessToken(credentials)
 
-# Print the token and its expiration time
-# print(f"This token '{token}' expires {token.expiration}")
-
 # Set up the authorization headers for future requests
 auth_headers = {"Authorization": f"Bearer {token.access_token}"}
 
@@ -43,9 +39,30 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration
-start_date = datetime.datetime(2025, 10, 17, 00, 00, 00, 000)
-end_date = datetime.datetime(2025, 10, 17, 00, 00, 00, 000)
+start_date = datetime.datetime(2025, 10, 18, 16, 00, 00, 000)
+end_date = datetime.datetime(2025, 10, 18, 16, 00, 00, 000)
 delta = datetime.timedelta(minutes=15)
+
+def remove_backgrund(file_name):
+    # Read image (BGR format)
+    img = cv2.imread(file_name)
+
+    # Define target color (B, G, R)
+    target_green = np.array([0, 192, 0])  # green in BGR
+    target_blue = np.array([255, 0, 0])  # blue in BRG
+
+    # Create masks for exact matches
+    mask_green = np.all(img == target_green, axis=-1)
+    mask_blue = np.all(img == target_blue, axis=-1)
+
+    # Combine both masks
+    mask = mask_green | mask_blue
+
+    # Set those pixels to black
+    img[mask > 0] = [0, 0, 0]
+
+    # Save result
+    cv2.imwrite(file_name, img)
 
 mask_input = input("Should blue and green be changed to black? (y/n)")
 
@@ -72,24 +89,6 @@ while (start_date <= end_date):
         f.write(output.read()) #skriver till output med binärkod till PNG filen
 
     if mask_input == "y":
-        # Read image (BGR format)
-        img = cv2.imread(f"images/{time[1].replace(":", "-")}.png")
-
-        # Define target color (B, G, R)
-        target_green = np.array([0, 192, 0])  # green in BGR
-        target_blue = np.array([255, 0, 0])  # blue in BRG
-
-        # Create masks for exact matches
-        mask_green = np.all(img == target_green, axis=-1)
-        mask_blue = np.all(img == target_blue, axis=-1)
-
-        # Combine both masks
-        mask = mask_green | mask_blue
-
-        # Set those pixels to black
-        img[mask > 0] = [0, 0, 0]
-
-        # Save result
-        cv2.imwrite(f"images/{time[1].replace(":", "-")}.png", img)
+        remove_backgrund(f"images/{time[1].replace(":", "-")}.png")
 
     print(output, time[1])
