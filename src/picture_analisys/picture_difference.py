@@ -9,6 +9,6 @@ diff = cv2.absdiff(img1, img2)
 non_zero_pixels = np.count_nonzero(diff)
 total_pixels = img1.size
 
-procetage = 100 - ((non_zero_pixels / total_pixels) * 100)
+procentage = 100 - ((non_zero_pixels / total_pixels) * 100)
 
-print(f"Procentage of matching pixels is: {procetage}%")
+print(f"Procentage of matching pixels is: {procentage}%")
