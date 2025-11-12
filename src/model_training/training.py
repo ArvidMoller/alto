@@ -7,28 +7,38 @@ import matplotlib.pyplot as plt
 
 import keras
 from keras import layers
+from keras.preprocessing.image import img_to_array, load_img
 
 import io
 import imageio
 from IPython.display import Image, display
 from ipywidgets import widgets, Layout, HBox
 
+import os
+
+# Imports images and converts them from .png to numpy arrays containing 1 channel images. Arrays are then appended to a list and converted to a 4-dimensional numpy array. 
+# 
+# Parameters: Void.
 #
-# DATASET KONSTRUKTION
-#
+# Returns:
+# dataset: A 4 dimensional numpy array containing all training images. 
+def load_dataset():
+    dataset = []
+    path = "../satellite_imagery_download/images"
+    for i in range(0, len(os.listdir(path))):   # loops through all images
+        img = load_img(f"{path}/{os.listdir(path)[i]}")     # loads images as a PIL image
+        img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
+        arr = img_to_array(img)     # converts images to numpy arrays
+        # print(arr.shape, os.listdir(path)[i])
+        dataset.append(arr)     # adds image array to python list
+        # print("Array added to dataset")
 
-""" <- TA BORT FÖR ATT KÖRA KOD
+    dataset = np.stack(dataset, axis=0)     # creates a 4 dimensional numpy array from the python list of arrays
 
-# Download and load the dataset.
-fpath = keras.utils.get_file(
+    return dataset
 
-#    HÄMTA ALLA SATELLITBILDER SOM EN .npy FIL
-#     
-#    EXEMPEL KOD
-#    "moving_mnist.npy",
-#    "http://www.cs.toronto.edu/~nitish/unsupervised_video/mnist_test_seq.npy",
-)
-dataset = np.load(fpath)
+
+dataset = load_dataset()
 
 # Swap the axes representing the number of frames and number of data samples.
 dataset = np.swapaxes(dataset, 0, 1)
@@ -85,7 +95,7 @@ print(f"Displaying frames for example {data_choice}.")
 plt.show()
 
 #
-#  MODEL KONSTRUKTION (stavfel?)
+#  MODEL KONSTRUKTION (stavfel?) (kasnek, jag kan inte stava, // möller)
 #
 
 # Construct the input layer with no definite frame size.
