@@ -1,6 +1,6 @@
-for e in range(0, 10):
-    print(e)
-
+import tensorflow as tf
+print(tf.__version__)
+print(tf.config.list_physical_devices('GPU'))
 
 """
 import numpy as np

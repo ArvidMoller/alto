@@ -4,17 +4,20 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+
+os.environ["KERAS_BACKEND"] = "tensorflow"
 
 import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
 
+import tensorflow as tf
+
 import io
 # import imageio
 from IPython.display import Image, display
 # from ipywidgets import widgets, Layout, HBox
-
-import os
 
 # Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. 
 # 
@@ -46,28 +49,34 @@ def load_dataset(path, sequence_size):
     return dataset
 
 
+# Splits the datset into a training dataset and a validation dataset using indexing and shuffeling the dataset bofore splitting.
+#
+# Parameters:
+# dataset: The numpy array to split.
+# split_procentage: Proentage of the dataset that becomes the training dataset.
+#
+# Returns:
+# train_dataset: Dataset for training.
+# val_dataset: Dataset for validation.
+def split_dataset(dataset, split_procentage):
+    indexes = np.arange(len(dataset))
+    np.random.shuffle(indexes)
+    train_indexes, val_indexes = indexes[: int((len(indexes)*split_procentage))], indexes[int((len(indexes)*split_procentage)) :]
+    train_dataset, val_dataset = dataset[train_indexes], dataset[val_indexes]
 
-dataset = load_dataset("../satellite_imagery_download/images", 10)
-print(dataset.shape)
+    return train_dataset, val_dataset
 
 
-"""
-# Swap the axes representing the number of frames and number of data samples.
-# dataset = np.swapaxes(dataset, 0, 1)
 
-# We'll pick out 1000 of the 10000 total examples and use those.
-dataset = dataset[:1000, ...]
+dataset = load_dataset("../satellite_imagery_download/images/images", 10)
+# print(dataset.shape)
 
-# Add a channel dimension since the images are grayscale.
-# dataset = np.expand_dims(dataset, axis=-1)
+train_dataset, val_dataset = split_dataset(dataset, 0.9)
 
-# Split into train and validation sets using indexing to optimize memory.
-indexes = np.arange(dataset.shape[0])
-np.random.shuffle(indexes)
-train_index = indexes[: int(0.9 * dataset.shape[0])]
-val_index = indexes[int(0.9 * dataset.shape[0]) :]
-train_dataset = dataset[train_index]
-val_dataset = dataset[val_index]
+
+
+
+
 
 # Normalize the data to the 0-1 range.
 train_dataset = train_dataset / 255
@@ -94,19 +103,19 @@ print("Validation Dataset Shapes: " + str(x_val.shape) + ", " + str(y_val.shape)
 #  DATA VISUALISERING
 #
 
-# Construct a figure on which we will visualize the images.
-fig, axes = plt.subplots(4, 5, figsize=(10, 8))
+# # Construct a figure on which we will visualize the images.
+# fig, axes = plt.subplots(4, 5, figsize=(10, 8))
 
-# Plot each of the sequential images for one random data example.
-data_choice = np.random.choice(range(len(train_dataset)), size=1)[0]
-for idx, ax in enumerate(axes.flat):
-    ax.imshow(np.squeeze(train_dataset[data_choice][idx]), cmap="gray")
-    ax.set_title(f"Frame {idx + 1}")
-    ax.axis("off")
+# # Plot each of the sequential images for one random data example.
+# data_choice = np.random.choice(range(len(train_dataset)), size=1)[0]
+# for idx, ax in enumerate(axes.flat):
+#     ax.imshow(np.squeeze(train_dataset[data_choice][idx]), cmap="gray")
+#     ax.set_title(f"Frame {idx + 1}")
+#     ax.axis("off")
 
-# Print information and display the figure.
-print(f"Displaying frames for example {data_choice}.")
-plt.show()
+# # Print information and display the figure.
+# print(f"Displaying frames for example {data_choice}.")
+# plt.show()
 
 #
 #  MODEL KONSTRUKTION (stavfel?) (kasnek, jag kan inte stava, // möller) kanel
@@ -164,14 +173,15 @@ epochs = 20
 batch_size = 5
 
 # Fit the model to the training data.
-model.fit(
-    x_train,
-    y_train,
-    batch_size=batch_size,
-    epochs=epochs,
-    validation_data=(x_val, y_val),
-    callbacks=[early_stopping, reduce_lr],
-)
+with tf.device("/GPU:0"):
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        validation_data=(x_val, y_val),
+        callbacks=[early_stopping, reduce_lr],
+    )
 
 #
 #  BILD FÖRUTSÄGELSE VISUALISERING
@@ -212,7 +222,3 @@ for idx, ax in enumerate(axes[1]):
 
 # Display the figure.
 plt.show()
-
-""" # <- TA BORT FÖR ATT KÖRA KOD
-
-print("training_test.rb finished") #test för att se att hela programmet har körts, inget som behövs

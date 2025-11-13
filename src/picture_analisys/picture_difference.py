@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-img1 = cv2.imread('../satellite_imagery_download/images/2025-10-17T00-00-00.000.png')
-img2 = cv2.imread('../satellite_imagery_download/images/2025-10-18T16-00-00.000.png')
+img1 = cv2.imread('../satellite_imagery_download/images/images/2025-10-17T00-00-00.000.png')
+img2 = cv2.imread('../satellite_imagery_download/images/images/2025-10-18T16-00-00.000.png')
 
 diff = cv2.absdiff(img1, img2)
 

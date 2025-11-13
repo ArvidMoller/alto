@@ -85,10 +85,10 @@ while (start_date <= end_date):
     start_date += delta
 
     #kod för att spara output bild
-    with open(f"images/{time[1].replace(":", "-")}.png", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
+    with open(f"images/images/{time[1].replace(":", "-")}.png", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
         f.write(output.read()) #skriver till output med binärkod till PNG filen
 
     if mask_input == "y":
-        remove_backgrund(f"images/{time[1].replace(":", "-")}.png")
+        remove_backgrund(f"images/images/{time[1].replace(":", "-")}.png")
 
     print(output, time[1])
