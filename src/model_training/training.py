@@ -7,45 +7,59 @@ import matplotlib.pyplot as plt
 
 import keras
 from keras import layers
-from keras.preprocessing.image import img_to_array, load_img
+from keras.preprocessing.image import img_to_array, array_to_img, load_img
 
 import io
-import imageio
+# import imageio
 from IPython.display import Image, display
-from ipywidgets import widgets, Layout, HBox
+# from ipywidgets import widgets, Layout, HBox
 
 import os
 
-# Imports images and converts them from .png to numpy arrays containing 1 channel images. Arrays are then appended to a list and converted to a 4-dimensional numpy array. 
+# Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. 
 # 
-# Parameters: Void.
+# Parameters:
+# path: Path to images.
+# sequence_size: Size of image sequences (time-steps).
 #
 # Returns:
-# dataset: A 4 dimensional numpy array containing all training images. 
-def load_dataset():
+# dataset: A 5 dimensional numpy array containing all training images of shape (samples, sequence_size, height, width, channels). 
+def load_dataset(path, sequence_size):
     dataset = []
-    path = "../satellite_imagery_download/images"
-    for i in range(0, len(os.listdir(path))):   # loops through all images
-        img = load_img(f"{path}/{os.listdir(path)[i]}")     # loads images as a PIL image
-        img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
-        arr = img_to_array(img)     # converts images to numpy arrays
-        # print(arr.shape, os.listdir(path)[i])
-        dataset.append(arr)     # adds image array to python list
-        # print("Array added to dataset")
+    sample_size = len(os.listdir(path))
+    print(sample_size)
+    for i in range(0, sample_size - (sequence_size-1)):   # loops through all images up to and including the image sequence_size places from the last.
+        sequence = []
 
-    dataset = np.stack(dataset, axis=0)     # creates a 4 dimensional numpy array from the python list of arrays
+        for e in range(0, sequence_size):       # loops through the pictures for the next sequence.
+            img = load_img(f"{path}/{os.listdir(path)[i + e]}")     # loads images as a PIL image
+            img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
+            img_arr = img_to_array(img)     # converts images to numpy arrays
+            print(img_arr.shape, os.listdir(path)[i+e], i+e)
+            sequence.append(img_arr)     # adds image array to python list
+    
+        sample = np.stack(sequence, axis=0)     # creates a 4 dimensional numpy array from the python list containing img_arr 
+        dataset.append(sample)      # adds sample array to python list
+
+    dataset = np.stack(dataset, axis=0)     # creates a 5 dimensional numpy array from the python list of arrays
 
     return dataset
 
 
-dataset = load_dataset()
 
+dataset = load_dataset("../satellite_imagery_download/images", 10)
+print(dataset.shape)
+
+
+"""
 # Swap the axes representing the number of frames and number of data samples.
-dataset = np.swapaxes(dataset, 0, 1)
+# dataset = np.swapaxes(dataset, 0, 1)
+
 # We'll pick out 1000 of the 10000 total examples and use those.
 dataset = dataset[:1000, ...]
+
 # Add a channel dimension since the images are grayscale.
-dataset = np.expand_dims(dataset, axis=-1)
+# dataset = np.expand_dims(dataset, axis=-1)
 
 # Split into train and validation sets using indexing to optimize memory.
 indexes = np.arange(dataset.shape[0])
@@ -95,7 +109,7 @@ print(f"Displaying frames for example {data_choice}.")
 plt.show()
 
 #
-#  MODEL KONSTRUKTION (stavfel?) (kasnek, jag kan inte stava, // möller)
+#  MODEL KONSTRUKTION (stavfel?) (kasnek, jag kan inte stava, // möller) kanel
 #
 
 # Construct the input layer with no definite frame size.

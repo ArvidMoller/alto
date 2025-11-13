@@ -1,3 +1,8 @@
+for e in range(0, 10):
+    print(e)
+
+
+"""
 import numpy as np
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
 import os
@@ -20,3 +25,4 @@ print(dataset.shape)
 # To prove that the code works
 img = array_to_img(dataset[0])
 img.show()
+"""
