@@ -39,8 +39,8 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration
-start_date = datetime.datetime(2025, 10, 18, 16, 00, 00, 000)
-end_date = datetime.datetime(2025, 10, 19, 4, 00, 00, 000)
+start_date = datetime.datetime(2025, 10, 19, 4, 00, 00, 000)
+end_date = datetime.datetime(2025, 10, 19, 4, 15, 00, 000)
 delta = datetime.timedelta(minutes=15)
 
 def remove_backgrund(file_name):
@@ -72,7 +72,7 @@ while (start_date <= end_date):
     time = [f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000Z", f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000"]
 
     payload = {
-        'identifier' : [target_layer,],
+        'identifier' : target_layer,
         'format' : format_option,
         'crs' : 'EPSG:4326',\
         'subsets' : [('Lat',region[1],region[3]),\

@@ -6,13 +6,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-os.environ["KERAS_BACKEND"] = "tensorflow"
+import torch
+
+os.environ["KERAS_BACKEND"] = "torch"
+print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
 
 import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
-
-import tensorflow as tf
 
 import io
 # import imageio
@@ -173,15 +174,14 @@ epochs = 20
 batch_size = 5
 
 # Fit the model to the training data.
-with tf.device("/GPU:0"):
-    model.fit(
-        x_train,
-        y_train,
-        batch_size=batch_size,
-        epochs=epochs,
-        validation_data=(x_val, y_val),
-        callbacks=[early_stopping, reduce_lr],
-    )
+model.fit(
+    x_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=epochs,
+    validation_data=(x_val, y_val),
+    callbacks=[early_stopping, reduce_lr],
+)
 
 #
 #  BILD FÖRUTSÄGELSE VISUALISERING

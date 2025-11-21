@@ -1,6 +1,8 @@
-import tensorflow as tf
-print(tf.__version__)
-print(tf.config.list_physical_devices('GPU'))
+import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+import torch
+print(torch.__version__, torch.cuda.get_device_name())
+
 
 """
 import numpy as np
