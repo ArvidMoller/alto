@@ -8,6 +8,10 @@ import ssl
 import datetime
 import cv2
 import numpy as np
+import argparse
+import sys
+from pathlib import Path
+import time as t
 
 # Turn off SSL certificate verification warnings
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -40,10 +44,10 @@ region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration
 start_date = datetime.datetime(2025, 10, 19, 4, 00, 00, 000)
-end_date = datetime.datetime(2025, 10, 19, 4, 15, 00, 000)
+end_date = datetime.datetime(2025, 10, 19, 12, 45, 00, 000)
 delta = datetime.timedelta(minutes=15)
 
-def remove_backgrund(file_name):
+def remove_background(file_name):
     # Read image (BGR format)
     img = cv2.imread(file_name)
 
@@ -64,7 +68,28 @@ def remove_backgrund(file_name):
     # Save result
     cv2.imwrite(file_name, img)
 
+
+#require argument for imagedownload directory
+p = argparse.ArgumentParser(
+    prog="image_download.py",
+    description="Download satellite images")
+p.add_argument("images_dir", help="Directory where images will be downloaded") #require extra argument for download directory
+#p.add_argument("-v", "--verbose", action="store_true", help="Extra output messages")
+p.add_argument("-q", "--quiet", action="store_true", help="Hides (some) output messages")
+args = p.parse_args()
+images_path = Path(args.images_dir).resolve() #saves argument as a path and removes any extra backslash
+
+#checks if second argument is a valid directory
+if not images_path.is_dir():
+    print(f"{args.images_dir} is not a valid directory", file=sys.stderr)
+    sys.exit(1)
+print(f"Downloading images to {images_path}")
+
+
 mask_input = input("Should blue and green be changed to black? (y/n)")
+
+start = t.perf_counter()
+image_amount = 0
 
 # iterate over range of dates
 while (start_date <= end_date):
@@ -85,10 +110,20 @@ while (start_date <= end_date):
     start_date += delta
 
     #kod för att spara output bild
-    with open(f"images/images/{time[1].replace(":", "-")}.png", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
+    image_filename = f"{time[1].replace(':', '-')}.png"
+    with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
         f.write(output.read()) #skriver till output med binärkod till PNG filen
 
     if mask_input == "y":
-        remove_backgrund(f"images/images/{time[1].replace(":", "-")}.png")
+        remove_background(images_path / image_filename)
 
-    print(output, time[1])
+    if not args.quiet:
+        print(output, time[1])
+    
+    image_amount += 1
+
+end = t.perf_counter()
+elapsed = end - start
+
+print("")
+print(f"Elapsed: {elapsed} seconds, Image Amount: {image_amount}, Avg Time per Image: {elapsed / image_amount} seconds" )
