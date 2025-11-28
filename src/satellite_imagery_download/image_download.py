@@ -43,7 +43,7 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration
-start_date = datetime.datetime(2025, 10, 19, 4, 00, 00, 000)
+start_date = datetime.datetime(2025, 10, 18, 4, 00, 00, 000)
 end_date = datetime.datetime(2025, 10, 19, 12, 45, 00, 000)
 delta = datetime.timedelta(minutes=15)
 

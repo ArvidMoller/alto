@@ -47,6 +47,8 @@ def load_dataset(path, sequence_size):
 
     dataset = np.stack(dataset, axis=0)     # creates a 5 dimensional numpy array from the python list of arrays
 
+    print(dataset.shape)
+
     return dataset
 
 
@@ -128,7 +130,7 @@ inp = layers.Input(shape=(None, *x_train.shape[2:]))
 # We will construct 3 `ConvLSTM2D` layers with batch normalization,
 # followed by a `Conv3D` layer for the spatiotemporal outputs.
 x = layers.ConvLSTM2D(
-    filters=64,
+    filters=32,
     kernel_size=(5, 5),
     padding="same",
     return_sequences=True,
@@ -136,7 +138,7 @@ x = layers.ConvLSTM2D(
 )(inp)
 x = layers.BatchNormalization()(x)
 x = layers.ConvLSTM2D(
-    filters=64,
+    filters=32,
     kernel_size=(3, 3),
     padding="same",
     return_sequences=True,
@@ -144,7 +146,7 @@ x = layers.ConvLSTM2D(
 )(x)
 x = layers.BatchNormalization()(x)
 x = layers.ConvLSTM2D(
-    filters=64,
+    filters=32,
     kernel_size=(1, 1),
     padding="same",
     return_sequences=True,
