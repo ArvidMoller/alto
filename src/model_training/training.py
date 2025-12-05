@@ -8,6 +8,8 @@ import os
 
 import torch
 
+os.environ["KERAS_BACKEND"] = "torch"
+
 import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
@@ -17,9 +19,7 @@ import io
 from IPython.display import Image, display
 # from ipywidgets import widgets, Layout, HBox
 
-keras.config.set_backend("torch")
 keras.mixed_precision.set_global_policy("mixed_float16")
-# os.environ["KERAS_BACKEND"] = "torch"
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
 
 
@@ -71,6 +71,10 @@ def split_dataset(dataset, split_procentage):
     train_dataset, val_dataset = dataset[train_indexes], dataset[val_indexes]
 
     return train_dataset, val_dataset
+
+
+def save_model(model, path, name):
+    model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
 
 
 
@@ -133,7 +137,7 @@ inp = layers.Input(shape=(None, *x_train.shape[2:]))
 # We will construct 3 `ConvLSTM2D` layers with batch normalization,
 # followed by a `Conv3D` layer for the spatiotemporal outputs.
 x = layers.ConvLSTM2D(
-    filters=32,
+    filters=32,                     # few filters
     kernel_size=(5, 5),
     padding="same",
     return_sequences=True,
@@ -162,16 +166,11 @@ x = layers.Conv3D(
 # Next, we will build the complete model and compile it.
 model = keras.models.Model(inp, x)
 
-"""
 model.compile(
     loss=keras.losses.binary_crossentropy,
     optimizer=keras.optimizers.Adam(),
 )
-"""
 
-torch_model = model.to_torch()
-compiled = torch.compile(torch_model)  # JIT compile
-model.from_torch(compiled)
 
 #
 #  MODEL TRÄNING
@@ -191,46 +190,9 @@ model.fit(
     y_train,
     batch_size=batch_size,
     epochs=epochs,
+    steps_per_epoch=None,       # default is sample size divided with epochs
     validation_data=(x_val, y_val),
     callbacks=[early_stopping, reduce_lr],
 )
 
-#
-#  BILD FÖRUTSÄGELSE VISUALISERING
-#
-
-# Select a random example from the validation dataset.
-example = val_dataset[np.random.choice(range(len(val_dataset)), size=1)[0]]
-
-# Pick the first/last ten frames from the example.
-frames = example[:10, ...]
-original_frames = example[10:, ...]
-
-# Predict a new set of 10 frames.
-for _ in range(10):
-    # Extract the model's prediction and post-process it.
-    new_prediction = model.predict(np.expand_dims(frames, axis=0))
-    new_prediction = np.squeeze(new_prediction, axis=0)
-    predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
-
-    # Extend the set of prediction frames.
-    frames = np.concatenate((frames, predicted_frame), axis=0)
-
-# Construct a figure for the original and new frames.
-fig, axes = plt.subplots(2, 10, figsize=(20, 4))
-
-# Plot the original frames.
-for idx, ax in enumerate(axes[0]):
-    ax.imshow(np.squeeze(original_frames[idx]), cmap="gray")
-    ax.set_title(f"Frame {idx + 11}")
-    ax.axis("off")
-
-# Plot the new frames.
-new_frames = frames[10:, ...]
-for idx, ax in enumerate(axes[1]):
-    ax.imshow(np.squeeze(new_frames[idx]), cmap="gray")
-    ax.set_title(f"Frame {idx + 11}")
-    ax.axis("off")
-
-# Display the figure.
-plt.show()
+save_model(model, "../models", "test")      # byt "test" namn till nått annat!!!

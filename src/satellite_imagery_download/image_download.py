@@ -96,6 +96,8 @@ while (start_date <= end_date):
     # Set date and time 
     time = [f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000Z", f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000"]
 
+    print(time)
+
     payload = {
         'identifier' : target_layer,
         'format' : format_option,
@@ -120,6 +122,8 @@ while (start_date <= end_date):
     if not args.quiet:
         print(output, time[1])
     
+    print(images_path, image_filename)
+
     image_amount += 1
 
 end = t.perf_counter()

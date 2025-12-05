@@ -1,22 +1,11 @@
 # import datetime module
-import datetime
+import datetime as dt
 
-# consider the start date as 2021-february 1 st
-start_date = datetime.datetime(2025, 10, 1, 10, 00, 00, 000)
+end_date = dt.datetime.now()
 
-# consider the end date as 2021-march 1 st
-end_date = datetime.datetime(2025, 10, 17, 10, 00, 00, 000)
+print(end_date)
 
-# delta time
-delta = datetime.timedelta(minutes=15)
+end_date = (end_date + dt.timedelta(minutes=(end_date.minute // 15 * 15) - end_date.minute)).isoformat()[:16]
+end_date = dt.datetime.fromisoformat(end_date)
 
-# iterate over range of dates
-while (start_date <= end_date):
-    print(start_date, end="\n")
-    start_date += delta
-    
-
-
-print(start_date.year)
-
-print(f"{start_date.year}-{start_date.month}-{start_date.day}T{start_date.hour}:{start_date.minute}:00.000")
+print(end_date)
