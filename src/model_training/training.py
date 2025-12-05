@@ -8,9 +8,6 @@ import os
 
 import torch
 
-os.environ["KERAS_BACKEND"] = "torch"
-print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
-
 import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
@@ -19,6 +16,12 @@ import io
 # import imageio
 from IPython.display import Image, display
 # from ipywidgets import widgets, Layout, HBox
+
+keras.config.set_backend("torch")
+keras.mixed_precision.set_global_policy("mixed_float16")
+# os.environ["KERAS_BACKEND"] = "torch"
+print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
+
 
 # Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. 
 # 
@@ -158,10 +161,17 @@ x = layers.Conv3D(
 
 # Next, we will build the complete model and compile it.
 model = keras.models.Model(inp, x)
+
+"""
 model.compile(
     loss=keras.losses.binary_crossentropy,
     optimizer=keras.optimizers.Adam(),
 )
+"""
+
+torch_model = model.to_torch()
+compiled = torch.compile(torch_model)  # JIT compile
+model.from_torch(compiled)
 
 #
 #  MODEL TRÄNING
