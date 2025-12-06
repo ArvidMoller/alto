@@ -163,6 +163,23 @@ def load_model(path):
     return model
 
 
+def save_predicted_sequence(predicted_sequence, folder_name):
+    current_date = dt.datetime.now(datetime.timezone.utc)
+    current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
+    current_date = dt.datetime.fromisoformat(current_date)
+
+    path = f"{__file__[:len(__file__)-22]}{folder_name}/{current_date.isoformat()}"
+
+    os.mkdir(path)
+    
+    for i in predicted_sequence:
+        img = array_to_img(i)
+        img = img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (i+1))).isoformat().replace(":", "-")}.png")
+
+    with open(f"{path}/info.txt", "w") as info:
+        info.write(f"{input("Info about generated pictures (model settings etc.): ")}")
+
+
 
 check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
@@ -183,11 +200,14 @@ for i in range(10):
 
     # Create an array with the predicted frames
     if i == 0:
-        predicted_sequenze = predicted_frame
+        predicted_sequence = predicted_frame
     else:
-        predicted_sequenze = np.append(predicted_sequenze, predicted_frame, axis=0)
+        predicted_sequence = np.append(predicted_sequence, predicted_frame, axis=0)
 
 print("The prediction was successfully made!")
+
+if input("Should predicted images be saved? (y/n) ") == "y":
+    save_predicted_sequence(predicted_sequence, "predicted_images")
 
 # Construct a figure for the original and new frames.
 fig, axes = plt.subplots(2, 10, figsize=(20, 4))
@@ -200,7 +220,7 @@ for idx, ax in enumerate(axes[0]):
 
 # Plot the new frames.
 for idx, ax in enumerate(axes[1]):
-    ax.imshow(np.squeeze(predicted_sequenze[idx]), cmap="gray")
+    ax.imshow(np.squeeze(predicted_sequence[idx]), cmap="gray")
     ax.set_title(f"Frame {idx + 11}")
     ax.axis("off")
 
