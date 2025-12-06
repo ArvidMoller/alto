@@ -168,13 +168,27 @@ def save_predicted_sequence(predicted_sequence, folder_name):
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
 
-    path = f"{__file__[:len(__file__)-22]}{folder_name}/{current_date.isoformat()}"
+    path = f"{__file__[:len(__file__)-14]}{folder_name}/{current_date.isoformat().replace(":", "-")}-00.000"
+    print(path)
 
-    os.mkdir(path)
+    try:
+        os.mkdir(path)
+    except:
+        for i in range(1, 1000):
+            try:
+                path =f"{path}({i})"
+                os.mkdir(path)
+                break
+            except:
+                path = path[:(len(path) - 3)]       # remove previous "(number)" ending
     
+    
+    e = 0
     for i in predicted_sequence:
         img = array_to_img(i)
-        img = img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (i+1))).isoformat().replace(":", "-")}.png")
+        img = img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
+        
+        e+=1
 
     with open(f"{path}/info.txt", "w") as info:
         info.write(f"{input("Info about generated pictures (model settings etc.): ")}")
