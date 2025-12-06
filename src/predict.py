@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-import glob
 import datetime as dt
 
 import torch
@@ -31,24 +30,18 @@ keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
 
 
-def load_model(path):
-    name = input("Name of desired model loaded")
-
-    model = keras.saving.load_model(f"{path}/{name}")
-
-
-def check_perdict_img(path):
+def check_perdict_img(path, sequence_size):
     images = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
     
     current_datetime = dt.datetime.now(datetime.timezone.utc)
     current_datetime = (current_datetime + dt.timedelta(minutes=(current_datetime.minute // 15 * 15) - current_datetime.minute - 15)).isoformat()[:16] + ":00.000.png"
     current_datetime = current_datetime.replace(":", "-")
 
-    if len(images) == 0 or images[-1] != current_datetime:
+    if len(images) != sequence_size or images[-1] != current_datetime:
         for i in images:
             os.remove(f"{__file__[:len(__file__)-11]}{path}/{i}")
 
-        download_predict_img(path)
+        download_predict_img(path, sequence_size)
         
 
 
@@ -74,7 +67,7 @@ def remove_background(file_name):
     cv2.imwrite(file_name, img)
 
 
-def download_predict_img(images_path):
+def download_predict_img(images_path, sequence_size):
     # Turn off SSL certificate verification warnings
     ssl._create_default_https_context = ssl._create_unverified_context
     warnings.simplefilter("ignore")
@@ -110,7 +103,7 @@ def download_predict_img(images_path):
     end_date = (end_date + dt.timedelta(minutes=(end_date.minute // 15 * 15) - end_date.minute - 15)).isoformat()[:16]
     end_date = dt.datetime.fromisoformat(end_date)
 
-    start_date = end_date - dt.timedelta(minutes=150)
+    start_date = end_date - dt.timedelta(minutes=15 * (sequence_size-1))
     delta = datetime.timedelta(minutes=15)
 
     # iterate over range of dates
@@ -141,47 +134,70 @@ def download_predict_img(images_path):
         print(output, time[1])
 
 
+def load_dataset(path):
+    dataset = []
+    samples = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
+    print(samples)
+
+    for e in samples:       # loops through the pictures for the next sequence.
+        img = load_img(f"{__file__[:len(__file__)-11]}{path}/{e}")     # loads images as a PIL image
+        img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
+        img_arr = img_to_array(img)     # converts images to numpy arrays
+        print(img_arr.shape, e)
+        dataset.append(img_arr)     # adds image array to python list
+
+    dataset = np.stack(dataset, axis=0)     # creates a 5 dimensional numpy array from the python list of arrays
+
+    print(dataset.shape)
+
+    return dataset
+
+
+def load_model(path):
+    name = input("Name of desired model ")
+
+    model = keras.saving.load_model(f"{__file__[:len(__file__)-11]}{path}/{name}.keras")
+
+    print("Model loaded")
+
+    return model
 
 
 
+check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
-
-check_perdict_img("/satellite_imagery_download/images/predict_images")
-
-#load dataset
+dataset = load_dataset("/satellite_imagery_download/images/predict_images")
 
 model = load_model("/models")
 
-# Select a random example from the validation dataset.
-example = val_dataset[np.random.choice(range(len(val_dataset)), size=1)[0]]
-
 # Pick the first/last ten frames from the example.
-frames = example[:10, ...]
-original_frames = example[10:, ...]
+# frames = example[:10, ...]
+# original_frames = example[10:, ...]
 
 # Predict a new set of 10 frames.
 for _ in range(10):
     # Extract the model's prediction and post-process it.
-    new_prediction = model.predict(np.expand_dims(frames, axis=0))
+    new_prediction = model.predict(np.expand_dims(dataset, axis=0))
     new_prediction = np.squeeze(new_prediction, axis=0)
     predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
 
     # Extend the set of prediction frames.
-    frames = np.concatenate((frames, predicted_frame), axis=0)
+    prediction = np.concatenate((prediction, predicted_frame), axis=0)
+
+print("The prediction was successfully made!")
 
 # Construct a figure for the original and new frames.
 fig, axes = plt.subplots(2, 10, figsize=(20, 4))
 
 # Plot the original frames.
 for idx, ax in enumerate(axes[0]):
-    ax.imshow(np.squeeze(original_frames[idx]), cmap="gray")
+    ax.imshow(np.squeeze(dataset[idx]), cmap="gray")
     ax.set_title(f"Frame {idx + 11}")
     ax.axis("off")
 
 # Plot the new frames.
-new_frames = frames[10:, ...]
 for idx, ax in enumerate(axes[1]):
-    ax.imshow(np.squeeze(new_frames[idx]), cmap="gray")
+    ax.imshow(np.squeeze(prediction[idx]), cmap="gray")
     ax.set_title(f"Frame {idx + 11}")
     ax.axis("off")
 
