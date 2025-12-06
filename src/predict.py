@@ -175,14 +175,17 @@ model = load_model("/models")
 # original_frames = example[10:, ...]
 
 # Predict a new set of 10 frames.
-for _ in range(10):
+for i in range(10):
     # Extract the model's prediction and post-process it.
     new_prediction = model.predict(np.expand_dims(dataset, axis=0))
     new_prediction = np.squeeze(new_prediction, axis=0)
     predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
 
-    # Extend the set of prediction frames.
-    prediction = np.concatenate((prediction, predicted_frame), axis=0)
+    # Create an array with the predicted frames
+    if i == 0:
+        predicted_sequenze = predicted_frame
+    else:
+        predicted_sequenze = np.append(predicted_sequenze, predicted_frame, axis=0)
 
 print("The prediction was successfully made!")
 
@@ -192,12 +195,12 @@ fig, axes = plt.subplots(2, 10, figsize=(20, 4))
 # Plot the original frames.
 for idx, ax in enumerate(axes[0]):
     ax.imshow(np.squeeze(dataset[idx]), cmap="gray")
-    ax.set_title(f"Frame {idx + 11}")
+    ax.set_title(f"Frame {idx + 1}")
     ax.axis("off")
 
 # Plot the new frames.
 for idx, ax in enumerate(axes[1]):
-    ax.imshow(np.squeeze(prediction[idx]), cmap="gray")
+    ax.imshow(np.squeeze(predicted_sequenze[idx]), cmap="gray")
     ax.set_title(f"Frame {idx + 11}")
     ax.axis("off")
 
