@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import datetime as dt
+import time as t
 
 import torch
 
@@ -30,12 +31,19 @@ keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
 
 
+# Checks if the latest images for predicting exists by checking their name with the current time. 
+#
+# Parameters:
+# path: Path to images,
+# sequence_size: Number of images per sequence. Must match with the number the model is trained on.
+#
+# Returns: 
+# void
 def check_perdict_img(path, sequence_size):
     images = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
     
     current_datetime = dt.datetime.now(datetime.timezone.utc)
-    current_datetime = (current_datetime + dt.timedelta(minutes=(current_datetime.minute // 15 * 15) - current_datetime.minute - 15)).isoformat()[:16] + ":00.000.png"
-    current_datetime = current_datetime.replace(":", "-")
+    current_datetime = (current_datetime + dt.timedelta(minutes=(current_datetime.minute // 15 * 15) - current_datetime.minute - 15)).isoformat()[:16].replace(":", "-") + "-00.000.png"
 
     if len(images) != sequence_size or images[-1] != current_datetime:
         for i in images:
@@ -44,7 +52,13 @@ def check_perdict_img(path, sequence_size):
         download_predict_img(path, sequence_size)
         
 
-
+# Removes background from satellite pictures by making all blue nad green pixles black. 
+#
+# Parameters:
+# file_name: The name of the picture whose background should be removed. 
+#
+# Returns: 
+# void
 def remove_background(file_name):
     # Read image (BGR format)
     img = cv2.imread(file_name)
@@ -67,6 +81,14 @@ def remove_background(file_name):
     cv2.imwrite(file_name, img)
 
 
+# Downloads the latest images to make prediction based on through EUMETSATs API.
+#
+# Parameters:
+# images_path: The path where the images are saved.
+# sequence_size: Number of images per sequence. Must match with the number the model is trained on.
+#
+# Returns: 
+# void
 def download_predict_img(images_path, sequence_size):
     # Turn off SSL certificate verification warnings
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -121,19 +143,39 @@ def download_predict_img(images_path, sequence_size):
             'access_token': token
         }
         
-        output = wcs.getCoverage(**payload)
+        for i in range(5):
+            try:
+                output = wcs.getCoverage(**payload)
+                break
+            except Exception as err:
+                if i < 4:
+                    print(f"Downlaod of picture at {time[1]} was unsuccessfull. Trying again in 3 seconds.")
+                    
+                    t.sleep(3)
+                else:
+                    print(f"Download of of picture at {time[1]} was unsuccessfull 5 times. Stopping download due to error: \n{err}")
+                    exit()
+        
         start_date += delta
 
         #kod för att spara output bild
-        image_filename = f"{time[1].replace(':', '-')}.png"
+        image_filename = f"{time[1].replace(":", "-")}.png"
         with open(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
             f.write(output.read()) #skriver till output med binärkod till PNG filen
 
-        remove_background(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}")
+        if input("Should blue and green be changed to black? (y/n)") == "y":
+            remove_background(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}")
 
         print(output, time[1])
 
 
+# Loads the dataset the prediction is based on by looping through the predict_images directory and converting the images to numpy arrays. 
+#
+# Parameters:
+# path: Path to the images. 
+#
+# Returns: 
+# dataset: A 4 dimensional numpy array containing each image as arrays. 
 def load_dataset(path):
     dataset = []
     samples = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
@@ -153,6 +195,13 @@ def load_dataset(path):
     return dataset
 
 
+# Loads the model saved as a .keras file. 
+#
+# Parameters:
+# path: The path to the model-file. 
+#
+# Returns: 
+# model: The model object. 
 def load_model(path):
     name = input("Name of desired model ")
 
@@ -163,12 +212,20 @@ def load_model(path):
     return model
 
 
-def save_predicted_sequence(predicted_sequence, folder_name):
+# Creates a directory named the time the most recent prediction images was taken. If a folder with the same name exists a number is added to the end. 
+#
+# Parameters:
+# predicted_sequence: The sequence of pictures the model predicted.
+# path: Relative path to the folder where te pictures should be saved. 
+#
+# Returns: 
+# void
+def save_predicted_sequence(predicted_sequence, path):
     current_date = dt.datetime.now(datetime.timezone.utc)
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
 
-    path = f"{__file__[:len(__file__)-14]}{folder_name}/{current_date.isoformat().replace(":", "-")}-00.000"
+    path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(":", "-")}-00.000"
     print(path)
 
     try:
@@ -194,6 +251,61 @@ def save_predicted_sequence(predicted_sequence, folder_name):
         info.write(f"{input("Info about generated pictures (model settings etc.): ")}")
 
 
+# Predicts frames based on the images in satellite_imagery_download/images/predict/images and adds them to an numpy array. 
+#
+# Parameters:
+# num_of_frames: The number of frames the model should predict.
+# model: The model object. 
+#
+# Returns: 
+# predicted_sequence: The numpy array containing the predicted images. 
+def predict_frames(num_of_frames, model):
+    # Predict a new set of 10 frames.
+    for i in range(num_of_frames):
+        # Extract the model's prediction and post-process it.
+        new_prediction = model.predict(np.expand_dims(dataset, axis=0))
+        new_prediction = np.squeeze(new_prediction, axis=0)
+        predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
+
+        # Create an array with the predicted frames
+        if i == 0:
+            predicted_sequence = predicted_frame
+        else:
+            predicted_sequence = np.append(predicted_sequence, predicted_frame, axis=0)
+
+    print("The prediction was successfully made!")
+
+    return predicted_sequence
+
+
+# Creates a matplotlib figure with the dataset images on the first row and the predicted images on the second row. 
+#
+# Parameters:
+# dataset: The numpy array containing the dataset.
+# predicted_sequence: The numpy array containing the predicted images. 
+#
+# Returns: 
+# void
+def plot_predicted_images(dataset, predicted_sequence):
+    # Construct a figure for the original and new frames.
+    fig, axes = plt.subplots(2, 10, figsize=(20, 4))
+
+    # Plot the original frames.
+    for idx, ax in enumerate(axes[0]):
+        ax.imshow(np.squeeze(dataset[idx]), cmap="gray")
+        ax.set_title(f"Frame {idx + 1}")
+        ax.axis("off")
+
+    # Plot the new frames.
+    for idx, ax in enumerate(axes[1]):
+        ax.imshow(np.squeeze(predicted_sequence[idx]), cmap="gray")
+        ax.set_title(f"Frame {idx + 11}")
+        ax.axis("off")
+
+    # Display the figure.
+    plt.show()
+
+
 
 check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
@@ -201,42 +313,9 @@ dataset = load_dataset("/satellite_imagery_download/images/predict_images")
 
 model = load_model("/models")
 
-# Pick the first/last ten frames from the example.
-# frames = example[:10, ...]
-# original_frames = example[10:, ...]
-
-# Predict a new set of 10 frames.
-for i in range(10):
-    # Extract the model's prediction and post-process it.
-    new_prediction = model.predict(np.expand_dims(dataset, axis=0))
-    new_prediction = np.squeeze(new_prediction, axis=0)
-    predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
-
-    # Create an array with the predicted frames
-    if i == 0:
-        predicted_sequence = predicted_frame
-    else:
-        predicted_sequence = np.append(predicted_sequence, predicted_frame, axis=0)
-
-print("The prediction was successfully made!")
+predicted_sequence = predict_frames(10, model)
 
 if input("Should predicted images be saved? (y/n) ") == "y":
     save_predicted_sequence(predicted_sequence, "predicted_images")
 
-# Construct a figure for the original and new frames.
-fig, axes = plt.subplots(2, 10, figsize=(20, 4))
-
-# Plot the original frames.
-for idx, ax in enumerate(axes[0]):
-    ax.imshow(np.squeeze(dataset[idx]), cmap="gray")
-    ax.set_title(f"Frame {idx + 1}")
-    ax.axis("off")
-
-# Plot the new frames.
-for idx, ax in enumerate(axes[1]):
-    ax.imshow(np.squeeze(predicted_sequence[idx]), cmap="gray")
-    ax.set_title(f"Frame {idx + 11}")
-    ax.axis("off")
-
-# Display the figure.
-plt.show()
+plot_predicted_images(dataset, predicted_sequence)

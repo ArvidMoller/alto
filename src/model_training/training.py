@@ -1,7 +1,3 @@
-#
-#  NYTT NAMN BEHÖVS!
-#
-
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -33,8 +29,10 @@ print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_devic
 # dataset: A 5 dimensional numpy array containing all training images of shape (samples, sequence_size, height, width, channels). 
 def load_dataset(path, sequence_size):
     dataset = []
+    
     sample_size = len(os.listdir(path))
     print(sample_size)
+
     for i in range(0, sample_size - (sequence_size-1)):   # loops through all images up to and including the image sequence_size places from the last.
         sequence = []
 
@@ -73,8 +71,31 @@ def split_dataset(dataset, split_procentage):
     return train_dataset, val_dataset
 
 
+# Saves the model as .keras file.
+#
+# Parameters:
+# model: The model object.
+# path: The path the file should be saved at. 
+# name: The name of the saved model.
+#
+# Returns: 
+# void
 def save_model(model, path, name):
     model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
+
+
+# Shifts elements in an array in order to get an 'x' and 'y' array. 
+#
+# Parameters:
+# data: Array containing the training data.
+#
+# Returns: 
+# x: Array containing frames 0 thourgh n-1, where n is the total number of frames in each sequence.
+# y: Array containing frames 1 thourgh n, where n is the total number of frames in each sequence.
+def shift_frames(data):
+    x = data[:, 0 : data.shape[1] - 1, :, :]
+    y = data[:, 1 : data.shape[1], :, :]
+    return x, y
 
 
 
@@ -84,48 +105,17 @@ dataset = load_dataset("../satellite_imagery_download/images/images", 10)
 train_dataset, val_dataset = split_dataset(dataset, 0.9)
 
 
-
-
-
-
 # Normalize the data to the 0-1 range.
 train_dataset = train_dataset / 255
 val_dataset = val_dataset / 255
 
-
-# We'll define a helper function to shift the frames, where
-# `x` is frames 0 to n - 1, and `y` is frames 1 to n.
-def create_shifted_frames(data):
-    x = data[:, 0 : data.shape[1] - 1, :, :]
-    y = data[:, 1 : data.shape[1], :, :]
-    return x, y
-
-
 # Apply the processing function to the datasets.
-x_train, y_train = create_shifted_frames(train_dataset)
-x_val, y_val = create_shifted_frames(val_dataset)
+x_train, y_train = shift_frames(train_dataset)
+x_val, y_val = shift_frames(val_dataset)
 
 # Inspect the dataset.
 print("Training Dataset Shapes: " + str(x_train.shape) + ", " + str(y_train.shape))
 print("Validation Dataset Shapes: " + str(x_val.shape) + ", " + str(y_val.shape))
-
-#
-#  DATA VISUALISERING
-#
-
-# # Construct a figure on which we will visualize the images.
-# fig, axes = plt.subplots(4, 5, figsize=(10, 8))
-
-# # Plot each of the sequential images for one random data example.
-# data_choice = np.random.choice(range(len(train_dataset)), size=1)[0]
-# for idx, ax in enumerate(axes.flat):
-#     ax.imshow(np.squeeze(train_dataset[data_choice][idx]), cmap="gray")
-#     ax.set_title(f"Frame {idx + 1}")
-#     ax.axis("off")
-
-# # Print information and display the figure.
-# print(f"Displaying frames for example {data_choice}.")
-# plt.show()
 
 #
 #  MODEL KONSTRUKTION (stavfel?) (kasnek, jag kan inte stava, // möller) kanel

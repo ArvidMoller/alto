@@ -44,14 +44,22 @@ region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration
 start_date = datetime.datetime(2025, 10, 18, 4, 00, 00, 000)
-end_date = datetime.datetime(2025, 10, 19, 12, 45, 00, 000)
+end_date = datetime.datetime(2025, 10, 20, 4, 00, 00, 000)
 delta = datetime.timedelta(minutes=15)
 
+
+# Removes background from satellite pictures by making all blue nad green pixles black. 
+#
+# Parameters:
+# file_name: The name of the picture whose background should be removed. 
+#
+# Returns: 
+# void
 def remove_background(file_name):
     # Read image (BGR format)
     img = cv2.imread(file_name)
 
-    # Define target color (B, G, R)
+    # Define target color (BGR)
     target_green = np.array([0, 192, 0])  # green in BGR
     target_blue = np.array([255, 0, 0])  # blue in BRG
 
@@ -96,8 +104,6 @@ while (start_date <= end_date):
     # Set date and time 
     time = [f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000Z", f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000"]
 
-    print(time)
-
     payload = {
         'identifier' : target_layer,
         'format' : format_option,
@@ -108,11 +114,25 @@ while (start_date <= end_date):
         'access_token': token
     }
     
-    output = wcs.getCoverage(**payload)
+    for i in range(5):
+        try:
+            output = wcs.getCoverage(**payload)
+            break
+        except Exception as err:
+            if i < 4:
+                print(f"Downlaod of picture at {time[1]} was unsuccessfull. Trying again in 3 seconds.")
+                
+                t.sleep(3)
+            else:
+                print(f"Download of of picture at {time[1]} was unsuccessfull 5 times. Stopping download due to error: \n{err}")
+                exit()
+
+
+
     start_date += delta
 
     #kod för att spara output bild
-    image_filename = f"{time[1].replace(':', '-')}.png"
+    image_filename = f"{time[1].replace(":", "-")}.png"
     with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
         f.write(output.read()) #skriver till output med binärkod till PNG filen
 
