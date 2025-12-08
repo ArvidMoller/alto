@@ -128,6 +128,8 @@ def download_predict_img(images_path, sequence_size):
     start_date = end_date - dt.timedelta(minutes=15 * (sequence_size-1))
     delta = datetime.timedelta(minutes=15)
 
+    delete_background = input("Should blue and green be changed to black in predict images? (y/n)")
+
     # iterate over range of dates
     while (start_date <= end_date):
         # Set date and time 
@@ -163,7 +165,7 @@ def download_predict_img(images_path, sequence_size):
         with open(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
             f.write(output.read()) #skriver till output med binärkod till PNG filen
 
-        if input("Should blue and green be changed to black? (y/n)") == "y":
+        if delete_background == "y":
             remove_background(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}")
 
         print(output, time[1])
@@ -226,7 +228,6 @@ def save_predicted_sequence(predicted_sequence, path):
     current_date = dt.datetime.fromisoformat(current_date)
 
     path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(":", "-")}-00.000"
-    print(path)
 
     try:
         os.mkdir(path)
