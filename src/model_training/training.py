@@ -185,4 +185,4 @@ model.fit(
     callbacks=[early_stopping, reduce_lr],
 )
 
-save_model(model, "../models", "test")      # byt "test" namn till nått annat!!!
+save_model(model, "../models", "test")      # byt "test" namn till nått annat!
