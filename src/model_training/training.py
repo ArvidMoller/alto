@@ -137,7 +137,6 @@ def construct_model(x_train):
     model.compile(
         loss=keras.losses.binary_crossentropy,
         optimizer=keras.optimizers.Adam(),
-        jit_compile=True
     )
 
     return model
@@ -147,12 +146,19 @@ def load_model_for_training(path):
     name = input("What is the name of the model you want to load? ")
     model = keras.saving.load_model(f"{path}/{name}_checkpoint.keras")
 
+    model.compile(
+        loss=keras.losses.binary_crossentropy,
+        optimizer=keras.optimizers.Adam(),
+    )
+
     return model
 
 
 
 
-
+#
+# PREPARE DATASET
+#
 
 model_name = input("Name of model: ")
 
@@ -177,7 +183,7 @@ print("Validation Dataset Shapes: " + str(x_val.shape) + ", " + str(y_val.shape)
 
 
 #
-#  MODEL TRÄNING
+#  MODEL TRAINING
 #
 
 if input("Should training continue on last checkpoint? (y/n) ") == "n":
@@ -211,7 +217,7 @@ model.fit(
     epochs=epochs,
     steps_per_epoch=None,       # default is sample size divided with epochs
     validation_data=(x_val, y_val),
-    callbacks=[early_stopping, reduce_lr, model_checkpoint],
+    callbacks=[early_stopping, reduce_lr, model_checkpoint]
 )
 
 save_model(model, "../models", model_name)
