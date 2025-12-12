@@ -98,6 +98,64 @@ def shift_frames(data):
     return x, y
 
 
+def construct_model(x_train):
+    # Construct the input layer with no definite frame size.
+    inp = layers.Input(shape=(None, *x_train.shape[2:]))
+
+    # We will construct 3 `ConvLSTM2D` layers with batch normalization,
+    # followed by a `Conv3D` layer for the spatiotemporal outputs.
+    x = layers.ConvLSTM2D(
+        filters=32,                     # few filters
+        kernel_size=(5, 5),
+        padding="same",
+        return_sequences=True,
+        activation="relu",
+    )(inp)
+    x = layers.BatchNormalization()(x)
+    x = layers.ConvLSTM2D(
+        filters=32,
+        kernel_size=(3, 3),
+        padding="same",
+        return_sequences=True,
+        activation="relu",
+    )(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ConvLSTM2D(
+        filters=32,
+        kernel_size=(1, 1),
+        padding="same",
+        return_sequences=True,
+        activation="relu",
+    )(x)
+    x = layers.Conv3D(
+        filters=1, kernel_size=(3, 3, 3), activation="sigmoid", padding="same"
+    )(x)
+
+    # Next, we will build the complete model and compile it.
+    model = keras.models.Model(inp, x)
+
+    model.compile(
+        loss=keras.losses.binary_crossentropy,
+        optimizer=keras.optimizers.Adam(),
+        jit_compile=True
+    )
+
+    return model
+
+
+def load_model_for_training(path):
+    name = input("What is the name of the model you want to load? ")
+    model = keras.saving.load_model(f"{path}/{name}_checkpoint.keras")
+
+    return model
+
+
+
+
+
+
+model_name = input("Name of model: ")
+
 
 dataset = load_dataset("../satellite_imagery_download/images/images", 10)
 # print(dataset.shape)
@@ -117,54 +175,16 @@ x_val, y_val = shift_frames(val_dataset)
 print("Training Dataset Shapes: " + str(x_train.shape) + ", " + str(y_train.shape))
 print("Validation Dataset Shapes: " + str(x_val.shape) + ", " + str(y_val.shape))
 
-#
-#  MODEL KONSTRUKTION (stavfel?) (kasnek, jag kan inte stava, // möller) kanel
-#
-
-# Construct the input layer with no definite frame size.
-inp = layers.Input(shape=(None, *x_train.shape[2:]))
-
-# We will construct 3 `ConvLSTM2D` layers with batch normalization,
-# followed by a `Conv3D` layer for the spatiotemporal outputs.
-x = layers.ConvLSTM2D(
-    filters=32,                     # few filters
-    kernel_size=(5, 5),
-    padding="same",
-    return_sequences=True,
-    activation="relu",
-)(inp)
-x = layers.BatchNormalization()(x)
-x = layers.ConvLSTM2D(
-    filters=32,
-    kernel_size=(3, 3),
-    padding="same",
-    return_sequences=True,
-    activation="relu",
-)(x)
-x = layers.BatchNormalization()(x)
-x = layers.ConvLSTM2D(
-    filters=32,
-    kernel_size=(1, 1),
-    padding="same",
-    return_sequences=True,
-    activation="relu",
-)(x)
-x = layers.Conv3D(
-    filters=1, kernel_size=(3, 3, 3), activation="sigmoid", padding="same"
-)(x)
-
-# Next, we will build the complete model and compile it.
-model = keras.models.Model(inp, x)
-
-model.compile(
-    loss=keras.losses.binary_crossentropy,
-    optimizer=keras.optimizers.Adam(),
-)
-
 
 #
 #  MODEL TRÄNING
 #
+
+if input("Should training continue on last checkpoint? (y/n) ") == "n":
+    model = construct_model(x_train)
+else:
+    model = load_model_for_training("../models/checkpoints")
+    
 
 # Define some callbacks to improve training.
 early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
@@ -174,6 +194,15 @@ reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=5)
 epochs = 20
 batch_size = 5
 
+checkpoint_path = f"../models/checkpoints/{model_name}_checkpoint.keras"
+model_checkpoint = keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_path,
+    save_weights_only=False,
+    verbose=1,
+    save_best_only=False
+    )
+
+
 # Fit the model to the training data.
 model.fit(
     x_train,
@@ -182,7 +211,7 @@ model.fit(
     epochs=epochs,
     steps_per_epoch=None,       # default is sample size divided with epochs
     validation_data=(x_val, y_val),
-    callbacks=[early_stopping, reduce_lr],
+    callbacks=[early_stopping, reduce_lr, model_checkpoint],
 )
 
-save_model(model, "../models", "test")      # byt "test" namn till nått annat!
+save_model(model, "../models", model_name)
