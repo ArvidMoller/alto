@@ -66,10 +66,11 @@ def remove_background(file_name):
     # Define target color (B, G, R)
     target_green = np.array([0, 192, 0])  # green in BGR
     target_blue = np.array([255, 0, 0])  # blue in BRG
+    tol = 10
 
     # Create masks for exact matches
-    mask_green = np.all(img == target_green, axis=-1)
-    mask_blue = np.all(img == target_blue, axis=-1)
+    mask_green = np.all(np.abs(img - target_green) < tol, axis=-1)
+    mask_blue = np.all(np.abs(img - target_blue) < tol, axis=-1)
 
     # Combine both masks
     mask = mask_green | mask_blue

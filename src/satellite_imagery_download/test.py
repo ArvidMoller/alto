@@ -1,11 +1,27 @@
-# import datetime module
-import datetime as dt
+import cv2
+import numpy as np
 
-end_date = dt.datetime.now()
+path = "C:/Users\AI-DatorN\Documents\arvid_olof\alto\src\satellite_imagery_download\images\images\2020-10-01T00-30-00.000.png"
 
-print(end_date)
+def remove_background(file_name):
+    # Read image (BGR format)
+    img = cv2.imread(file_name)
 
-end_date = (end_date + dt.timedelta(minutes=(end_date.minute // 15 * 15) - end_date.minute)).isoformat()[:16]
-end_date = dt.datetime.fromisoformat(end_date)
+    # Define target color (BGR)
+    target_green = np.array([0, 192, 0])  # green in BGR
+    target_blue = np.array([255, 0, 0])  # blue in BRG
 
-print(end_date)
+    # Create masks for exact matches
+    mask_green = np.all(img == target_green, axis=-1)
+    mask_blue = np.all(img == target_blue, axis=-1)
+
+    # Combine both masks
+    mask = mask_green | mask_blue
+
+    # Set those pixels to black
+    img[mask > 0] = [0, 0, 0]
+
+    # Save result
+    cv2.imwrite(file_name, img)
+
+remove_background(path)
