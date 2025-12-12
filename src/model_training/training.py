@@ -31,7 +31,9 @@ def load_dataset(path, sequence_size):
     dataset = []
     
     sample_size = len(os.listdir(path))
-    print(sample_size)
+    print(f"Total number of pictures: {sample_size}")
+
+    sample_size = int(input("Number of training pictures: "))
 
     for i in range(0, sample_size - (sequence_size-1)):   # loops through all images up to and including the image sequence_size places from the last.
         sequence = []

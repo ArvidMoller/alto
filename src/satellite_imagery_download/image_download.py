@@ -42,9 +42,9 @@ format_option = 'image/png'
 # Define region of interest
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
-# start time, end time and delta for iteration
-start_date = datetime.datetime(2025, 10, 18, 4, 00, 00, 000)
-end_date = datetime.datetime(2025, 10, 20, 4, 00, 00, 000)
+# start time, end time and delta for iteration (year, month, day, hour, minute, second, millisecond)
+start_date = datetime.datetime(2020, 10, 1, 00, 00, 00, 000)
+end_date = datetime.datetime(2025, 12, 12, 12, 00, 00, 000)
 delta = datetime.timedelta(minutes=15)
 
 
