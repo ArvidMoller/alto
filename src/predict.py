@@ -52,6 +52,8 @@ def check_perdict_img(path, sequence_size):
         download_predict_img(path, sequence_size)
         
 
+# CURRENTLY NOT IN USE!
+#
 # Removes background from satellite pictures by making all blue nad green pixles black. 
 #
 # Parameters:
@@ -112,7 +114,7 @@ def download_predict_img(images_path, sequence_size):
     wcs = WebCoverageService(service_url, auth=Authentication(verify=False), version='2.0.1', timeout=120)
 
     # Viket layer vi vill ha
-    target_layer = 'msg_fes__clm'
+    target_layer = 'msg_fes__ir108'
 
     # select format option
     format_option = 'image/png'
@@ -127,9 +129,9 @@ def download_predict_img(images_path, sequence_size):
     end_date = dt.datetime.fromisoformat(end_date)
 
     start_date = end_date - dt.timedelta(minutes=15 * (sequence_size-1))
-    delta = datetime.timedelta(minutes=15)
+    delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15, and match the delta the model was trained on) ")))
 
-    delete_background = input("Should blue and green be changed to black in predict images? (y/n)")
+    # delete_background = input("Should blue and green be changed to black in predict images? (y/n)")
 
     # iterate over range of dates
     while (start_date <= end_date):
@@ -166,8 +168,8 @@ def download_predict_img(images_path, sequence_size):
         with open(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
             f.write(output.read()) #skriver till output med binärkod till PNG filen
 
-        if delete_background == "y":
-            remove_background(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}")
+        # if delete_background == "y":
+        #     remove_background(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}")
 
         print(output, time[1])
 

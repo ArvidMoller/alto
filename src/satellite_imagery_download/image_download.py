@@ -34,7 +34,7 @@ service_url = 'https://view.eumetsat.int/geoserver/wcs?'
 wcs = WebCoverageService(service_url, auth=Authentication(verify=False), version='2.0.1', timeout=120)
 
 # Viket layer vi vill ha
-target_layer = 'msg_fes__clm'
+target_layer = 'msg_fes__ir108'
 
 # select format option
 format_option = 'image/png'
@@ -43,11 +43,13 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration (year, month, day, hour, minute, second, millisecond)        2020, 10, 1, 00, 00, 00, 000
-start_date = datetime.datetime(2020, 10, 1, 00, 00, 00, 000)
+start_date = datetime.datetime(2025, 12, 12, 11, 00, 00, 000)
 end_date = datetime.datetime(2025, 12, 12, 12, 00, 00, 000)
-delta = datetime.timedelta(minutes=15)
+delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15) ")))
 
 
+# CURRENTLY NOT IN USE!
+#
 # Removes background from satellite pictures by making all blue nad green pixles black. 
 #
 # Parameters:
@@ -95,7 +97,7 @@ if not images_path.is_dir():
 print(f"Downloading images to {images_path}")
 
 
-mask_input = input("Should blue and green be changed to black? (y/n)")
+# mask_input = input("Should blue and green be changed to black? (y/n)")
 
 start = t.perf_counter()
 image_amount = 0
@@ -137,8 +139,8 @@ while (start_date <= end_date):
     with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
         f.write(output.read()) #skriver till output med binärkod till PNG filen
 
-    if mask_input == "y":
-        remove_background(images_path / image_filename)
+    # if mask_input == "y":
+    #     remove_background(images_path / image_filename)
 
     if not args.quiet:
         print(output, time[1])
