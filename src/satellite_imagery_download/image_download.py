@@ -43,8 +43,8 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration (year, month, day, hour, minute, second, millisecond)        2020, 10, 1, 00, 00, 00, 000
-start_date = datetime.datetime(2025, 12, 12, 11, 00, 00, 000)
-end_date = datetime.datetime(2025, 12, 12, 12, 00, 00, 000)
+start_date = datetime.datetime(2020, 10, 10, 00, 00, 00, 000)
+end_date = datetime.datetime(2020, 10, 10, 23, 45, 00, 000)
 delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15) ")))
 
 
@@ -96,11 +96,14 @@ if not images_path.is_dir():
     sys.exit(1)
 print(f"Downloading images to {images_path}")
 
-
 # mask_input = input("Should blue and green be changed to black? (y/n)")
 
 start = t.perf_counter()
 image_amount = 0
+
+with open("images/download_log.txt", "r+") as f:    # Clear download_log.txt
+    f.truncate()
+
 
 # iterate over range of dates
 while (start_date <= end_date):
@@ -120,6 +123,17 @@ while (start_date <= end_date):
     for i in range(5):
         try:
             output = wcs.getCoverage(**payload)
+
+            #kod för att spara output bild
+            image_filename = f"{time[1].replace(":", "-")}.png"
+            with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
+                f.write(output.read()) #skriver till output med binärkod till PNG filen
+
+            # if mask_input == "y":
+            #     remove_background(images_path / image_filename)
+
+            image_amount += 1
+
             break
         except Exception as err:
             if i < 4:
@@ -127,27 +141,18 @@ while (start_date <= end_date):
                 
                 t.sleep(3)
             else:
-                print(f"Download of of picture at {time[1]} was unsuccessfull 5 times. Stopping download due to error: \n{err}")
-                exit()
+                print(f"Download of of picture at {time[1]} was unsuccessfull 5 times due to error: \n{err}")
+                with open("images/download_log.txt", "a") as f:
+                    f.write(f"{time[1]}, {image_filename}, Error: {err}\n")
 
 
 
     start_date += delta
 
-    #kod för att spara output bild
-    image_filename = f"{time[1].replace(":", "-")}.png"
-    with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
-        f.write(output.read()) #skriver till output med binärkod till PNG filen
-
-    # if mask_input == "y":
-    #     remove_background(images_path / image_filename)
-
     if not args.quiet:
         print(output, time[1])
     
     print(images_path, image_filename)
-
-    image_amount += 1
 
 end = t.perf_counter()
 elapsed = end - start
