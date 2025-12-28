@@ -1,3 +1,4 @@
+"""
 import numpy as np
 import os
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
@@ -99,3 +100,7 @@ def load_dataset(path, sequence_size):
     print(dataset.shape)
 
     return dataset
+"""
+
+with open("test_info.txt", "w") as f:
+    f.write(f"{input("General info about model: ")}\nDataset shape: dataset_shape\nEpochs: epochs\nBatch size: batch_size\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}")

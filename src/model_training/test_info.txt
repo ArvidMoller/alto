@@ -1,0 +1,12 @@
+model made for ieieorgw
+Dataset shape: dataset_shape
+Epochs: epochs
+Batch size: batch_size
+First layer filters: 32
+Second layer filters: 32
+Third layer filters: 32
+3D layer filters: 32
+First layer kernel size: 5, 5
+Second layer kernel size: 3, 3
+Third layer kernel size: 1, 1
+3D layer kernel size: 3, 3, 3

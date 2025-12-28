@@ -103,19 +103,6 @@ def split_dataset(dataset, split_procentage):
     return train_dataset, val_dataset
 
 
-# Saves the model as .keras file.
-#
-# Parameters:
-# model: The model object.
-# path: The path the file should be saved at. 
-# name: The name of the saved model.
-#
-# Returns: 
-# void
-def save_model(model, path, name):
-    model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
-
-
 # Shifts elements in an array in order to get an 'x' and 'y' array. 
 #
 # Parameters:
@@ -186,6 +173,20 @@ def load_model_for_training(path):
     return model
 
 
+# Saves the model as .keras file.
+#
+# Parameters:
+# model: The model object.
+# path: The path the file should be saved at. 
+# name: The name of the saved model.
+#
+# Returns: 
+# void
+def save_model(model, path, name, epochs, batch_size, dataset_shape):
+    model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
+    
+    with open(f"{path}/{name}_info.txt", "w") as f:
+        f.write(f"{input("General info about model: ")}\n\nDataset shape: {dataset_shape}\nEpochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}")
 
 
 #
@@ -252,4 +253,4 @@ model.fit(
     callbacks=[early_stopping, reduce_lr, model_checkpoint]
 )
 
-save_model(model, "../models", model_name)
+save_model(model, "../models", model_name, epochs, batch_size, dataset.shape)
