@@ -43,8 +43,8 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration (year, month, day, hour, minute, second, millisecond)        2020, 10, 1, 00, 00, 00, 000
-start_date = datetime.datetime(2020, 10, 10, 00, 00, 00, 000)
-end_date = datetime.datetime(2020, 10, 10, 23, 45, 00, 000)
+start_date = datetime.datetime(2021, 3, 9, 00, 00, 00, 000)
+end_date = datetime.datetime(2021, 3, 9, 23, 45, 00, 000)
 delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15) ")))
 
 
@@ -132,6 +132,11 @@ while (start_date <= end_date):
             # if mask_input == "y":
             #     remove_background(images_path / image_filename)
 
+            if not args.quiet:
+                print(output, time[1])
+        
+            print(images_path, image_filename)
+
             image_amount += 1
 
             break
@@ -143,16 +148,11 @@ while (start_date <= end_date):
             else:
                 print(f"Download of of picture at {time[1]} was unsuccessfull 5 times due to error: \n{err}")
                 with open("images/download_log.txt", "a") as f:
-                    f.write(f"{time[1]}, {image_filename}, Error: {err}\n")
+                    f.write(f"{time[1]}, {err}\n")
 
 
 
     start_date += delta
-
-    if not args.quiet:
-        print(output, time[1])
-    
-    print(images_path, image_filename)
 
 end = t.perf_counter()
 elapsed = end - start
