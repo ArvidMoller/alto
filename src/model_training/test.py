@@ -1,9 +1,10 @@
-"""
 import numpy as np
 import os
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
 import datetime as dt
 
+
+"""
 # Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. 
 # 
 # Parameters:
@@ -67,40 +68,71 @@ def load_dataset(path, sequence_size):
     print(dataset.shape)
 
     return dataset
-
-
-load_dataset("../satellite_imagery_download/images/images", 10)
+"""
 
 
 
-# old "load_dataset" function
-def load_dataset(path, sequence_size):
+# new "load_dataset" function
+
+# Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. Sequences containing missing images (as specified in ../satellite_imagery_download/images/downlog_log.txt) as skipped.
+# 
+# Parameters:
+# path: Path to images.
+# sequence_size: Size of image sequences (time-steps).
+# start_index: The index where the download starts.
+# time_delta: Time between images (most often 15).
+#
+# Returns:
+# dataset: A 5 dimensional numpy array containing all training images of shape (samples, sequence_size, height, width, channels). 
+def load_dataset(path, sequence_size, start_index, time_delta):
     dataset = []
-    
-    sample_size = len(os.listdir(path))
-    print(f"Total number of pictures: {sample_size}")
+    missing_imgs =[]
 
+    print(f"Total number of pictures: {len(os.listdir(path))}")
     sample_size = int(input("Number of training pictures: "))
 
-    for i in range(0, sample_size - (sequence_size-1)):   # loops through all images up to and including the image sequence_size places from the last.
+    first_img = os.listdir(path)[start_index][:23]      # Get file name of first image in download.
+    
+    for i in [13, 16]:      # Convert to ISO-format.
+            first_img = first_img[:i] + ":" + first_img[i+1:]
+
+    first_img_dt = dt.datetime.fromisoformat(first_img)     # Convert to datetime format.
+
+    file = open("../satellite_imagery_download/images/download_log.txt", "r")       # Open download_log.txt and add all missing timestamps to an array.
+    lines = file.readlines()
+    for i in lines:
+        missing_imgs.append(i.strip()[:23])
+    file.close()
+
+    for j in range(sample_size - sequence_size + (1 + len(missing_imgs))):
+        sequence_timestamps = []
         sequence = []
 
-        for e in range(0, sequence_size):       # loops through the pictures for the next sequence.
-            img = load_img(f"{path}/{os.listdir(path)[i + e]}")     # loads images as a PIL image
-            img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
-            img_arr = img_to_array(img)     # converts images to numpy arrays
-            print(img_arr.shape, os.listdir(path)[i+e], i+e)
-            sequence.append(img_arr)     # adds image array to python list
-    
-        sample = np.stack(sequence, axis=0)     # creates a 4 dimensional numpy array from the python list containing img_arr 
-        dataset.append(sample)      # adds sample array to python list
+        for e in range(sequence_size):                 
+            sequence_timestamps.append(f"{(first_img_dt + dt.timedelta(minutes=time_delta * (j + e))).isoformat()}.000")      # Append all timestamps for the next sequences images to an array in ISO-format. 
+
+        print(sequence_timestamps)
+            
+        if not any(i in missing_imgs for i in sequence_timestamps):       # Check if all images in sequence_time_arr exist by comparing to missing_imgs
+            for i in sequence_timestamps:
+                img = load_img(f"{path}/{i.replace(":", "-")}.png")     # Load images as PIL
+                img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
+                img_arr = img_to_array(img)     # converts images to numpy arrays
+                print(img_arr.shape, i)
+                sequence.append(img_arr)  
+            
+            sequence = np.stack(sequence, axis=0)     # creates a 4 dimensional numpy array from the python list containing img_arr 
+            dataset.append(sequence) 
+        else:
+            print("Not all images were found in this sequence.")
+        
+        print("\n")
 
     dataset = np.stack(dataset, axis=0)     # creates a 5 dimensional numpy array from the python list of arrays
 
     print(dataset.shape)
 
     return dataset
-"""
 
-with open("test_info.txt", "w") as f:
-    f.write(f"{input("General info about model: ")}\nDataset shape: dataset_shape\nEpochs: epochs\nBatch size: batch_size\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}")
+
+load_dataset("../satellite_imagery_download/images/images", 10, 0, 15)

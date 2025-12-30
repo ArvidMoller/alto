@@ -43,8 +43,8 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration (year, month, day, hour, minute, second, millisecond)        2020, 10, 1, 00, 00, 00, 000
-start_date = datetime.datetime(2021, 3, 9, 00, 00, 00, 000)
-end_date = datetime.datetime(2021, 3, 9, 23, 45, 00, 000)
+start_date = datetime.datetime(2025, 11, 19, 00, 00, 00, 000)
+end_date = datetime.datetime(2025, 11, 19, 23, 45, 00, 000)
 delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15) ")))
 
 
