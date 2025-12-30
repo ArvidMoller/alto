@@ -182,18 +182,24 @@ def load_model_for_training(path):
 #
 # Returns: 
 # void
-def save_model(model, path, name, epochs, batch_size, dataset_shape):
+def save_model(model, path, name, dataset_shape, general_model_info, specific_model_info):
     model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
     
     with open(f"{path}/{name}_info.txt", "w") as f:
-        f.write(f"{input("General info about model: ")}\n\nDataset shape: {dataset_shape}\nEpochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}")
+        f.write(f"{general_model_info}Dataset shape: {dataset_shape}\n{specific_model_info}")
 
 
 #
 # PREPARE DATASET
 #
 
+# Define modifiable training hyperparameters.
+epochs = 20
+batch_size = 5
+
 model_name = input("Name of model: ")
+general_model_info = f"{input("General info about model: ")}\n\n"
+specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}"
 
 
 dataset = load_dataset("../satellite_imagery_download/images/images", 10)
@@ -229,10 +235,6 @@ else:
 early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
 reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=5)
 
-# Define modifiable training hyperparameters.
-epochs = 20
-batch_size = 5
-
 checkpoint_path = f"../models/checkpoints/{model_name}_checkpoint.keras"
 model_checkpoint = keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
@@ -253,4 +255,4 @@ model.fit(
     callbacks=[early_stopping, reduce_lr, model_checkpoint]
 )
 
-save_model(model, "../models", model_name, epochs, batch_size, dataset.shape)
+save_model(model, "../models", model_name, dataset.shape, general_model_info, specific_model_info)
