@@ -63,7 +63,7 @@ def load_dataset(path, sequence_size, start_index, time_delta):
             for i in sequence_timestamps:
                 img = load_img(f"{path}/{i.replace(":", "-")}.png")     # Load images as PIL
                 img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
-                img_arr = img_to_array(img)     # converts images to numpy arrays
+                img_arr = img_to_array(img, dtype=np.uint8)     # converts images to numpy arrays
                 print(img_arr.shape, i)
                 sequence.append(img_arr)  
             
