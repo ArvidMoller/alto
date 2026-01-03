@@ -6,6 +6,7 @@ import random
 import copy
 
 import torch
+from torch.utils.data import Dataset, DataLoader
 
 os.environ["KERAS_BACKEND"] = "torch"
 
@@ -20,6 +21,21 @@ from IPython.display import Image, display
 
 keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
+
+
+class ConvLSTMDataset(Dataset):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        return (
+            torch.tensor(self.x[idx], dtype=torch.float16),
+            torch.tensor(self.y[idx], dtype=torch.float16)
+        )
 
 
 # Computes shape of python list.
@@ -73,8 +89,13 @@ def load_dataset(path, sequence_size, start_index, time_delta):
     missing_imgs =[]
     image_cache = {}
 
-    print(f"Total number of pictures: {len(os.listdir(path))}")
+    total_img_amount = len(os.listdir(path))
+    print(f"Total number of pictures: {total_img_amount}")
     sample_size = int(input("Number of training pictures: "))
+
+    while sample_size > total_img_amount:
+        print("TOO MANY PICTURES!!!!")
+        sample_size = int(input("Number of training pictures: "))
 
     first_img = os.listdir(path)[start_index][:23]      # Get file name of first image in download.
     
@@ -104,14 +125,11 @@ def load_dataset(path, sequence_size, start_index, time_delta):
                 print(img_arr.shape, i)
                 sequence.append(img_arr)  
             
-            # sequence = np.stack(sequence, axis=0)     # creates a 4 dimensional numpy array from the python list containing img_arr 
             dataset.append(sequence) 
         else:
             print("Not all images were found in this sequence.")
         
         print("\n")
-
-    # dataset = np.stack(dataset, axis=0)     # creates a 5 dimensional numpy array from the python list of arrays
 
     print(list_shape(dataset, 5))
 
@@ -161,7 +179,6 @@ def shift_frames(data):
 
     for i in range(len(data)):
         y[i].pop(0)
-        print(list_shape(y, 5))
 
     return x, y
 
@@ -220,6 +237,19 @@ def construct_model(x_train):
     return model
 
 
+# ¯\_(ツ)_/¯
+#
+# Parameters:
+# dataloader: The dataloader object.
+#
+# Yeild:
+# x: ¯\_(ツ)_/¯
+# y: ¯\_(ツ)_/¯
+def dataloader_generator(dataloader):
+    for x, y in dataloader:
+        yield x, y
+
+
 # Load and compile preexisting model to continue training.
 #
 # Paramiters:
@@ -267,6 +297,8 @@ model_name = input("Name of model: ")
 general_model_info = f"{input("General info about model: ")}\n\n"
 specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}"
 
+train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
+
 
 dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 15)
 
@@ -285,20 +317,14 @@ print("Validation Dataset Shapes: " + str(list_shape(x_val, 5)) + ", " + str(lis
 #  MODEL TRAINING
 #  ===========================================================================
 
-if input("Should training continue on last checkpoint? (y/n) ") == "n":
+if train_on_checkpoint == "n":
     model = construct_model(x_train)
 else:
     model = load_model_for_training("../models/checkpoints")
 
-print("Starting convertion to numpy array")
-x_train = np.array(x_train, dtype=np.float16)
-print("x_train conversion completed")  
-y_train = np.array(y_train, dtype=np.float16)
-print("y_train conversion completed")  
-x_val = np.array(x_val, dtype=np.float16)   
-print("x_val conversion completed")  
-y_val = np.array(y_val, dtype=np.float16)
-print("y_val conversion completed")
+print("Starting DataLoader")
+train_loader = DataLoader(ConvLSTMDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
+val_loader = DataLoader(ConvLSTMDataset(x_val, y_val), batch_size=batch_size, shuffle=True)
 print("Pre-processing completed")
 
 # Define some callbacks to improve training.
@@ -316,12 +342,11 @@ model_checkpoint = keras.callbacks.ModelCheckpoint(
 
 # Fit the model to the training data.
 model.fit(
-    x_train,
-    y_train,
+    dataloader_generator(train_loader),
     batch_size=batch_size,
     epochs=epochs,
-    steps_per_epoch=100,       # default is amount of sequences divided with epochs
-    validation_data=(x_val, y_val),
+    steps_per_epoch=len(train_loader),       # default is amount of sequences divided with epochs
+    validation_data=dataloader_generator(val_loader),
     callbacks=[early_stopping, reduce_lr, model_checkpoint]
 )
 
