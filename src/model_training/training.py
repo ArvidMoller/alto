@@ -20,7 +20,25 @@ keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
 
 
-# Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. Sequences containing missing images (as specified in ../satellite_imagery_download/images/downlog_log.txt) as skipped.
+# Saves all image arrays in an dictionary in order to make sure they are only loaded in into RAM once. 
+# 
+# Parameters:
+# path: Path to images.
+# image_cache: Dictionary containing all image arrays associated with their path.
+#
+# Returns:
+# image_cache[path]: The image array associated with the path. 
+# image_cache: The dictionary containing all image arrays.
+def get_image(path, image_cache):
+    if path not in image_cache:
+        img = load_img(path)
+        img = img.convert("L")
+        image_cache[path] = img_to_array(img, dtype=np.uint8)
+
+    return image_cache[path] , image_cache
+
+
+# Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. Sequences containing missing images (as specified in ../satellite_imagery_download/images/downlog_log.txt) are skipped.
 # 
 # Parameters:
 # path: Path to images.
@@ -33,6 +51,7 @@ print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_devic
 def load_dataset(path, sequence_size, start_index, time_delta):
     dataset = []
     missing_imgs =[]
+    image_cache = {}
 
     print(f"Total number of pictures: {len(os.listdir(path))}")
     sample_size = int(input("Number of training pictures: "))
@@ -61,9 +80,7 @@ def load_dataset(path, sequence_size, start_index, time_delta):
             
         if not any(i in missing_imgs for i in sequence_timestamps):       # Check if all images in sequence_time_arr exist by comparing to missing_imgs
             for i in sequence_timestamps:
-                img = load_img(f"{path}/{i.replace(":", "-")}.png")     # Load images as PIL
-                img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
-                img_arr = img_to_array(img, dtype=np.uint8)     # converts images to numpy arrays
+                img_arr, image_cache = get_image(f"{path}/{i.replace(':','-')}.png", image_cache)
                 print(img_arr.shape, i)
                 sequence.append(img_arr)  
             
@@ -150,7 +167,10 @@ def construct_model(x_train):
         activation="relu",
     )(x)
     x = layers.Conv3D(
-        filters=1, kernel_size=(3, 3, 3), activation="sigmoid", padding="same"
+        filters=1, 
+        kernel_size=(3, 3, 3), 
+        activation="sigmoid", 
+        padding="same"
     )(x)
 
     # Next, we will build the complete model and compile it.
