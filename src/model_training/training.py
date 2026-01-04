@@ -4,6 +4,7 @@ import os
 import datetime as dt
 import random
 import copy
+from tqdm import tqdm
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -73,6 +74,20 @@ def get_image(path, image_cache):
 
     return image_cache[path] , image_cache
 
+# Adds all missing images from download_log.txt to an array
+#
+# Returns:
+# missing_imgs: An array containing the names of all the missing images
+def missing_array(arr):
+    missing_imgs = []
+    file = open("../satellite_imagery_download/images/download_log.txt", "r")       # Open download_log.txt and add all missing timestamps to an array.
+    lines = file.readlines()
+    for i in lines:
+        missing_imgs.append(i.strip()[:23])
+    file.close()
+
+    return missing_imgs
+
 
 # Imports images and converts them from .png to numpy arrays containing 1 channel images. Those images are then added to a sequence array containing the number of images specified in the sequence_size. The sequence array is then appended to a list and converted to a 5-dimensional numpy array. Sequences containing missing images (as specified in ../satellite_imagery_download/images/downlog_log.txt) are skipped.
 # 
@@ -86,7 +101,6 @@ def get_image(path, image_cache):
 # dataset: A 5 dimensional numpy array containing all training images of shape (samples, sequence_size, height, width, channels). 
 def load_dataset(path, sequence_size, start_index, time_delta):
     dataset = []
-    missing_imgs =[]
     image_cache = {}
 
     total_img_amount = len(os.listdir(path))
@@ -104,11 +118,7 @@ def load_dataset(path, sequence_size, start_index, time_delta):
 
     first_img_dt = dt.datetime.fromisoformat(first_img)     # Convert to datetime format.
 
-    file = open("../satellite_imagery_download/images/download_log.txt", "r")       # Open download_log.txt and add all missing timestamps to an array.
-    lines = file.readlines()
-    for i in lines:
-        missing_imgs.append(i.strip()[:23])
-    file.close()
+    missing_imgs = missing_array()
 
     for j in range(sample_size - sequence_size + (1 + len(missing_imgs))):
         sequence_timestamps = []
@@ -120,9 +130,9 @@ def load_dataset(path, sequence_size, start_index, time_delta):
         print(sequence_timestamps)
             
         if not any(i in missing_imgs for i in sequence_timestamps):       # Check if all images in sequence_time_arr exist by comparing to missing_imgs
-            for i in sequence_timestamps:
+            for i in tqdm(sequence_timestamps, desc="loading images"):
                 img_arr, image_cache = get_image(f"{path}/{i.replace(':','-')}.png", image_cache)
-                print(img_arr.shape, i)
+                # print(img_arr.shape, i)
                 sequence.append(img_arr)  
             
             dataset.append(sequence) 
@@ -293,9 +303,17 @@ def save_model(model, path, name, dataset_shape, general_model_info, specific_mo
 epochs = 20
 batch_size = 5
 
-model_name = input("Name of model: ")
-general_model_info = f"{input("General info about model: ")}\n\n"
-specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input("Number of filters in first layer: ")}\nSecond layer filters: {input("Number of filters in second layer: ")}\nThird layer filters: {input("Number of filters in third layer: ")}\n3D layer filters: {input("Number of filters in 3D layer: ")}\nFirst layer kernel size: {input("Kernel size in first layer: ")}\nSecond layer kernel size: {input("Kernel size in second layer: ")}\nThird layer kernel size: {input("Kernel size in third layer: ")}\n3D layer kernel size: {input("Kernel size in 3D layer: ")}"
+write_model_info = input("Write information about model? (y/n) ").lower()
+
+if write_model_info == "y":
+    model_name = input("Name of model: ")
+    general_model_info = f"{input('General info about model: ')}\n\n"
+    specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input('Number of filters in first layer: ')}\nSecond layer filters: {input('Number of filters in second layer: ')}\nThird layer filters: {input('Number of filters in third layer: ')}\n3D layer filters: {input('Number of filters in 3D layer: ')}\nFirst layer kernel size: {input('Kernel size in first layer: ')}\nSecond layer kernel size: {input('Kernel size in second layer: ')}\nThird layer kernel size: {input('Kernel size in third layer: ')}\n3D layer kernel size: {input('Kernel size in 3D layer: ')}"
+else:
+    model_name = f"{random.randint(10000, 99999)}"
+    print(f"Model saved as: {model_name}.keras")
+    general_model_info = "General info about model: Not given\n\n"
+    specific_model_info  = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: Not given\nSecond layer filters: \nThird layer filters: Not given\n3D layer filters: Not given\nFirst layer kernel size: Not given\nSecond layer kernel size: Not given\nThird layer kernel size: Not given\n3D layer kernel size: Not given"
 
 train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
 

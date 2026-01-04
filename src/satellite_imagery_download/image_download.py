@@ -12,6 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 import time as t
+from tqdm import tqdm
 
 # Turn off SSL certificate verification warnings
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -43,8 +44,8 @@ format_option = 'image/png'
 region = (-4, 45, 20, 65) # order is lon1,lat1,lon2,lat2
 
 # start time, end time and delta for iteration (year, month, day, hour, minute, second, millisecond)        2020, 10, 1, 00, 00, 00, 000
-start_date = datetime.datetime(2025, 11, 19, 00, 00, 00, 000)
-end_date = datetime.datetime(2025, 11, 19, 23, 45, 00, 000)
+start_date = datetime.datetime(2020, 10, 1, 00, 00, 00, 000)
+end_date = datetime.datetime(2020, 10, 1, 23, 45, 00, 000)
 delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15) ")))
 
 
@@ -104,55 +105,57 @@ image_amount = 0
 with open("images/download_log.txt", "r+") as f:    # Clear download_log.txt
     f.truncate()
 
+total_steps = int((end_date - start_date) / delta) + 1
 
-# iterate over range of dates
-while (start_date <= end_date):
-    # Set date and time 
-    time = [f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000Z", f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000"]
+with tqdm(total=total_steps, desc="downloading images") as pbar:
+    # iterate over range of dates
+    while (start_date <= end_date):
+        # Set date and time 
+        time = [f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000Z", f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000"]
 
-    payload = {
-        'identifier' : target_layer,
-        'format' : format_option,
-        'crs' : 'EPSG:4326',\
-        'subsets' : [('Lat',region[1],region[3]),\
-                    ('Long',region[0],region[2]), \
-                    ('Time',time[0],time[1])],
-        'access_token': token
-    }
-    
-    for i in range(5):
-        try:
-            output = wcs.getCoverage(**payload)
-
-            #kod för att spara output bild
-            image_filename = f"{time[1].replace(":", "-")}.png"
-            with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
-                f.write(output.read()) #skriver till output med binärkod till PNG filen
-
-            # if mask_input == "y":
-            #     remove_background(images_path / image_filename)
-
-            if not args.quiet:
-                print(output, time[1])
+        payload = {
+            'identifier' : target_layer,
+            'format' : format_option,
+            'crs' : 'EPSG:4326',\
+            'subsets' : [('Lat',region[1],region[3]),\
+                        ('Long',region[0],region[2]), \
+                        ('Time',time[0],time[1])],
+            'access_token': token
+        }
         
-            print(images_path, image_filename)
+        for i in range(5):
+            try:
+                output = wcs.getCoverage(**payload)
 
-            image_amount += 1
+                #kod för att spara output bild
+                image_filename = f"{time[1].replace(':', '-')}.png"
+                with open(images_path / image_filename, "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
+                    f.write(output.read()) #skriver till output med binärkod till PNG filen
 
-            break
-        except Exception as err:
-            if i < 4:
-                print(f"Downlaod of picture at {time[1]} was unsuccessfull. Trying again in 3 seconds.")
-                
-                t.sleep(3)
-            else:
-                print(f"Download of of picture at {time[1]} was unsuccessfull 5 times due to error: \n{err}")
-                with open("images/download_log.txt", "a") as f:
-                    f.write(f"{time[1]}, {err}\n")
+                # if mask_input == "y":
+                #     remove_background(images_path / image_filename)
+
+                if not args.quiet:
+                    print(output, time[1])
+                    print(images_path, image_filename)
+
+                image_amount += 1
+
+                break
+            except Exception as err:
+                if i < 4:
+                    print(f"Downlaod of picture at {time[1]} was unsuccessfull. Trying again in 3 seconds.")
+                    
+                    t.sleep(3)
+                else:
+                    print(f"Download of of picture at {time[1]} was unsuccessfull 5 times due to error: \n{err}")
+                    with open("images/download_log.txt", "a") as f:
+                        f.write(f"{time[1]}, {err}\n")
 
 
 
-    start_date += delta
+        start_date += delta
+        pbar.update(1)
 
 end = t.perf_counter()
 elapsed = end - start
