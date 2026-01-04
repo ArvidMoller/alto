@@ -285,14 +285,17 @@ def load_model_for_training(path):
 # model: The model object.
 # path: The path the file should be saved at. 
 # name: The name of the saved model.
+# ...
+# creation_datetime: The date and time when the model began training
+# finished_datetime: The date and time when the model finished training
 #
 # Returns: 
 # void
-def save_model(model, path, name, dataset_shape, general_model_info, specific_model_info):
+def save_model(model, path, name, dataset_shape, general_model_info, specific_model_info, creation_datetime, finished_datetime):
     model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
     
     with open(f"{path}/{name}_info.txt", "w") as f:
-        f.write(f"{general_model_info}Dataset shape: {dataset_shape}\n{specific_model_info}")
+        f.write(f"{general_model_info}Dataset shape: {dataset_shape}\n{specific_model_info}Model started training {creation_datetime} and finished training {finished_datetime}")
 
 
 #  ===========================================================================
@@ -308,12 +311,12 @@ write_model_info = input("Write information about model? (y/n) ").lower()
 if write_model_info == "y":
     model_name = input("Name of model: ")
     general_model_info = f"{input('General info about model: ')}\n\n"
-    specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input('Number of filters in first layer: ')}\nSecond layer filters: {input('Number of filters in second layer: ')}\nThird layer filters: {input('Number of filters in third layer: ')}\n3D layer filters: {input('Number of filters in 3D layer: ')}\nFirst layer kernel size: {input('Kernel size in first layer: ')}\nSecond layer kernel size: {input('Kernel size in second layer: ')}\nThird layer kernel size: {input('Kernel size in third layer: ')}\n3D layer kernel size: {input('Kernel size in 3D layer: ')}"
+    specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input('Number of filters in first layer: ')}\nSecond layer filters: {input('Number of filters in second layer: ')}\nThird layer filters: {input('Number of filters in third layer: ')}\n3D layer filters: {input('Number of filters in 3D layer: ')}\nFirst layer kernel size: {input('Kernel size in first layer: ')}\nSecond layer kernel size: {input('Kernel size in second layer: ')}\nThird layer kernel size: {input('Kernel size in third layer: ')}\n3D layer kernel size: {input('Kernel size in 3D layer: ')}\n\n"
 else:
     model_name = f"{random.randint(10000, 99999)}"
     print(f"Model saved as: {model_name}.keras")
     general_model_info = "General info about model: Not given\n\n"
-    specific_model_info  = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: Not given\nSecond layer filters: \nThird layer filters: Not given\n3D layer filters: Not given\nFirst layer kernel size: Not given\nSecond layer kernel size: Not given\nThird layer kernel size: Not given\n3D layer kernel size: Not given"
+    specific_model_info  = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: Not given\nSecond layer filters: \nThird layer filters: Not given\n3D layer filters: Not given\nFirst layer kernel size: Not given\nSecond layer kernel size: Not given\nThird layer kernel size: Not given\n3D layer kernel size: Not given\n\n"
 
 train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
 
@@ -357,6 +360,7 @@ model_checkpoint = keras.callbacks.ModelCheckpoint(
     save_best_only=False
     )
 
+creation_datetime = f"{dt.datetime.now()}"
 
 # Fit the model to the training data.
 model.fit(
@@ -368,4 +372,6 @@ model.fit(
     callbacks=[early_stopping, reduce_lr, model_checkpoint]
 )
 
-save_model(model, "../models", model_name, list_shape(dataset, 5), general_model_info, specific_model_info)
+finished_datetime = f"{dt.datetime.now()}"
+
+save_model(model, "../models", model_name, list_shape(dataset, 5), general_model_info, specific_model_info, creation_datetime, finished_datetime)
