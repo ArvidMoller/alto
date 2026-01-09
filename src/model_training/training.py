@@ -43,18 +43,18 @@ class ConvLSTMDataset(Dataset):
 #
 # Parameters:
 # arr: Multi-dimensional list.
-# dimensions: Amount of dimensions.
 #
 # Returns
 # shape: Shape of multi-dimensional list.
-def list_shape(arr, dimensions):
+def list_shape(arr):
     shape = []
-
-    for i in range(dimensions): 
-        shape.append(len(arr))
-        arr = arr[0]
-
-    return shape
+    shape.append(len(arr))
+    while True:
+        try:
+            arr = arr[0]
+            shape.append(len(arr))
+        except:
+            return shape
 
 
 # Saves all image arrays in an dictionary in order to make sure they are only loaded in into RAM once. 
@@ -74,11 +74,12 @@ def get_image(path, image_cache):
 
     return image_cache[path] , image_cache
 
+
 # Adds all missing images from download_log.txt to an array
 #
 # Returns:
 # missing_imgs: An array containing the names of all the missing images
-def missing_array(arr):
+def missing_array():
     missing_imgs = []
     file = open("../satellite_imagery_download/images/download_log.txt", "r")       # Open download_log.txt and add all missing timestamps to an array.
     lines = file.readlines()
@@ -141,7 +142,7 @@ def load_dataset(path, sequence_size, start_index, time_delta):
         
         print("\n")
 
-    print(list_shape(dataset, 5))
+    print(list_shape(dataset))
 
     return dataset
 
@@ -202,7 +203,7 @@ def shift_frames(data):
 # model: Model object ready for training.
 def construct_model(x_train):
     # Construct the input layer with no definite frame size.
-    inp = layers.Input(shape=(None, *(list_shape(x_train, 5)[2:])))
+    inp = layers.Input(shape=(None, *(list_shape(x_train)[2:])))
 
     # We will construct 3 `ConvLSTM2D` layers with batch normalization,
     # followed by a `Conv3D` layer for the spatiotemporal outputs.
@@ -298,6 +299,23 @@ def save_model(model, path, name, dataset_shape, general_model_info, specific_mo
         f.write(f"{general_model_info}Dataset shape: {dataset_shape}\n{specific_model_info}Model started training {creation_datetime} and finished training {finished_datetime}")
 
 
+# Finds "model[insert number here].keras" name with lowest number. 
+#
+# path: Path to directory where model will be saved.
+#
+# Return:
+# name: Name of model. 
+def model_name(path):
+    model_name_arr = os.listdir(path)
+    i = 1
+    name = f"model{i}.keras"
+    while name in model_name_arr:
+        name = f"model{i}.keras"
+        i += 1
+
+    return name[:(5+len(str(i)))]
+
+
 #  ===========================================================================
 # PREPARE DATASET
 #  ===========================================================================
@@ -309,12 +327,12 @@ batch_size = 5
 write_model_info = input("Write information about model? (y/n) ").lower()
 
 if write_model_info == "y":
-    model_name = input("Name of model: ")
+    name = input("Name of model: ")
     general_model_info = f"{input('General info about model: ')}\n\n"
     specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input('Number of filters in first layer: ')}\nSecond layer filters: {input('Number of filters in second layer: ')}\nThird layer filters: {input('Number of filters in third layer: ')}\n3D layer filters: {input('Number of filters in 3D layer: ')}\nFirst layer kernel size: {input('Kernel size in first layer: ')}\nSecond layer kernel size: {input('Kernel size in second layer: ')}\nThird layer kernel size: {input('Kernel size in third layer: ')}\n3D layer kernel size: {input('Kernel size in 3D layer: ')}\n\n"
 else:
-    model_name = f"{random.randint(10000, 99999)}"
-    print(f"Model saved as: {model_name}.keras")
+    name = model_name("../models")
+    print(f"Model saved as: {name}.keras")
     general_model_info = "General info about model: Not given\n\n"
     specific_model_info  = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: Not given\nSecond layer filters: \nThird layer filters: Not given\n3D layer filters: Not given\nFirst layer kernel size: Not given\nSecond layer kernel size: Not given\nThird layer kernel size: Not given\n3D layer kernel size: Not given\n\n"
 
@@ -330,8 +348,8 @@ x_train, y_train = shift_frames(train_dataset)
 x_val, y_val = shift_frames(val_dataset)
 
 # Inspect the dataset.
-print("Training Dataset Shapes: " + str(list_shape(x_train, 5)) + ", " + str(list_shape(y_train, 5)))
-print("Validation Dataset Shapes: " + str(list_shape(x_val, 5)) + ", " + str(list_shape(y_val, 5)))
+print("Training Dataset Shapes: " + str(list_shape(x_train)) + ", " + str(list_shape(y_train)))
+print("Validation Dataset Shapes: " + str(list_shape(x_val)) + ", " + str(list_shape(y_val)))
 
 
 #  ===========================================================================
@@ -352,7 +370,7 @@ print("Pre-processing completed")
 early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
 reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=5)
 
-checkpoint_path = f"../models/checkpoints/{model_name}_checkpoint.keras"
+checkpoint_path = f"../models/checkpoints/{name}_checkpoint.keras"
 model_checkpoint = keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=False,
@@ -374,4 +392,4 @@ model.fit(
 
 finished_datetime = f"{dt.datetime.now()}"
 
-save_model(model, "../models", model_name, list_shape(dataset, 5), general_model_info, specific_model_info, creation_datetime, finished_datetime)
+save_model(model, "../models", name, list_shape(dataset), general_model_info, specific_model_info, creation_datetime, finished_datetime)
