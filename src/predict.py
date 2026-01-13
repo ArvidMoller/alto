@@ -264,13 +264,17 @@ def save_predicted_sequence(predicted_sequence, path):
 #
 # Returns: 
 # predicted_sequence: The numpy array containing the predicted images. 
-def predict_frames(num_of_frames, model):
+def predict_frames(num_of_frames, model, dataset):
     # Predict a new set of 10 frames.
     for i in range(num_of_frames):
         # Extract the model's prediction and post-process it.
         new_prediction = model.predict(np.expand_dims(dataset, axis=0))
         new_prediction = np.squeeze(new_prediction, axis=0)
         predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
+
+        dataset = list(dataset)
+        dataset.append(predicted_frame)
+        dataset = np.delete(np.array(dataset), 0, axis=0)
 
         # Create an array with the predicted frames
         if i == 0:
@@ -318,7 +322,7 @@ dataset = load_dataset("/satellite_imagery_download/images/predict_images")
 
 model = load_model("/models")
 
-predicted_sequence = predict_frames(10, model)
+predicted_sequence = predict_frames(10, model, dataset)
 
 if input("Should predicted images be saved? (y/n) ") == "y":
     save_predicted_sequence(predicted_sequence, "predicted_images")

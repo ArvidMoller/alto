@@ -133,7 +133,7 @@ def load_dataset(path, sequence_size, start_index, time_delta):
         if not any(i in missing_imgs for i in sequence_timestamps):       # Check if all images in sequence_time_arr exist by comparing to missing_imgs
             for i in tqdm(sequence_timestamps, desc="loading images"):
                 img_arr, image_cache = get_image(f"{path}/{i.replace(':','-')}.png", image_cache)
-                # print(img_arr.shape, i)
+                print(list_shape(img_arr), i)
                 sequence.append(img_arr)  
             
             dataset.append(sequence) 
