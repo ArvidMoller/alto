@@ -321,7 +321,7 @@ def model_name(path):
 #  ===========================================================================
 
 # Define modifiable training hyperparameters.
-epochs = 20
+epochs = int(input("Number of epochs: "))
 batch_size = 5
 
 write_model_info = input("Write information about model? (y/n) ").lower()
@@ -374,7 +374,7 @@ checkpoint_path = f"../models/checkpoints/{name}_checkpoint.keras"
 model_checkpoint = keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=False,
-    verbose=1,
+    verbose=0,
     save_best_only=False
     )
 

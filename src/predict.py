@@ -246,8 +246,9 @@ def save_predicted_sequence(predicted_sequence, path):
     
     e = 0
     for i in predicted_sequence:
+        i = np.clip(i * 255.0, 0, 255)
         img = array_to_img(i)
-        img = img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
+        img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
         
         e+=1
 
