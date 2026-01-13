@@ -256,6 +256,17 @@ def save_predicted_sequence(predicted_sequence, path):
         info.write(f"{input("Info about generated pictures (model settings etc.): ")}")
 
 
+#provisorisk
+def list_shape(arr):
+    shape = []
+    shape.append(len(arr))
+    while True:
+        try:
+            arr = arr[0]
+            shape.append(len(arr))
+        except:
+            return shape
+
 # Predicts frames based on the images in satellite_imagery_download/images/predict/images and adds them to an numpy array. 
 #
 # Parameters:
@@ -269,22 +280,16 @@ def predict_frames(num_of_frames, model, dataset):
     for i in range(num_of_frames):
         # Extract the model's prediction and post-process it.
         new_prediction = model.predict(np.expand_dims(dataset, axis=0))
-        new_prediction = np.squeeze(new_prediction, axis=0)
-        predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
+        predicted_frame = np.squeeze(new_prediction, axis=0)[-1]
 
         dataset = list(dataset)
         dataset.append(predicted_frame)
-        dataset = np.delete(np.array(dataset), 0, axis=0)
-
-        # Create an array with the predicted frames
-        if i == 0:
-            predicted_sequence = predicted_frame
-        else:
-            predicted_sequence = np.append(predicted_sequence, predicted_frame, axis=0)
+        dataset.pop(0)
+        dataset = np.array(dataset)
 
     print("The prediction was successfully made!")
 
-    return predicted_sequence
+    return dataset
 
 
 # Creates a matplotlib figure with the dataset images on the first row and the predicted images on the second row. 
