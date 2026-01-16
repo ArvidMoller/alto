@@ -319,6 +319,7 @@ def model_name(path):
 #  ===========================================================================
 # PREPARE DATASET
 #  ===========================================================================
+load_test = input("Is this a loading test? (y/n)").lower()
 
 # Define modifiable training hyperparameters.
 epochs = int(input("Number of epochs: "))
@@ -351,6 +352,8 @@ x_val, y_val = shift_frames(val_dataset)
 print("Training Dataset Shapes: " + str(list_shape(x_train)) + ", " + str(list_shape(y_train)))
 print("Validation Dataset Shapes: " + str(list_shape(x_val)) + ", " + str(list_shape(y_val)))
 
+if load_test == "y":
+    exit()
 
 #  ===========================================================================
 #  MODEL TRAINING
