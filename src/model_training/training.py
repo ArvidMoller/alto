@@ -233,7 +233,7 @@ def construct_model(x_train):
     x = layers.Conv3D(
         filters=1, 
         kernel_size=(3, 3, 3), 
-        activation="sigmoid", 
+        activation="linear", 
         padding="same"
     )(x)
 
@@ -242,7 +242,8 @@ def construct_model(x_train):
 
     model.compile(
         loss=keras.losses.binary_crossentropy,
-        optimizer=keras.optimizers.Adam(),
+        optimizer=keras.optimizers.Adam(1e-4),
+        loss="mse"
     )
 
     return model
@@ -322,24 +323,24 @@ def model_name(path):
 
 # Define modifiable training hyperparameters.
 epochs = int(input("Number of epochs: "))
-batch_size = 5
+batch_size = int(input("Batch size: "))
 
 write_model_info = input("Write information about model? (y/n) ").lower()
 
 if write_model_info == "y":
     name = input("Name of model: ")
     general_model_info = f"{input('General info about model: ')}\n\n"
-    specific_model_info = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input('Number of filters in first layer: ')}\nSecond layer filters: {input('Number of filters in second layer: ')}\nThird layer filters: {input('Number of filters in third layer: ')}\n3D layer filters: {input('Number of filters in 3D layer: ')}\nFirst layer kernel size: {input('Kernel size in first layer: ')}\nSecond layer kernel size: {input('Kernel size in second layer: ')}\nThird layer kernel size: {input('Kernel size in third layer: ')}\n3D layer kernel size: {input('Kernel size in 3D layer: ')}\n\n"
+    specific_model_info = f"Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: {input('Number of filters in first layer: ')}\nSecond layer filters: {input('Number of filters in second layer: ')}\nThird layer filters: {input('Number of filters in third layer: ')}\n3D layer filters: {input('Number of filters in 3D layer: ')}\nFirst layer kernel size: {input('Kernel size in first layer: ')}\nSecond layer kernel size: {input('Kernel size in second layer: ')}\nThird layer kernel size: {input('Kernel size in third layer: ')}\n3D layer kernel size: {input('Kernel size in 3D layer: ')}\n\n"
 else:
     name = model_name("../models")
     print(f"Model saved as: {name}.keras")
     general_model_info = "General info about model: Not given\n\n"
-    specific_model_info  = f"(Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: Not given\nSecond layer filters: \nThird layer filters: Not given\n3D layer filters: Not given\nFirst layer kernel size: Not given\nSecond layer kernel size: Not given\nThird layer kernel size: Not given\n3D layer kernel size: Not given\n\n"
+    specific_model_info  = f"Epochs: {epochs}\nBatch size: {batch_size}\nFirst layer filters: Not given\nSecond layer filters: \nThird layer filters: Not given\n3D layer filters: Not given\nFirst layer kernel size: Not given\nSecond layer kernel size: Not given\nThird layer kernel size: Not given\n3D layer kernel size: Not given\n\n"
 
 train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
 
 
-dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 15)
+dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 30)
 
 train_dataset, val_dataset = split_dataset(dataset, 0.9)
 

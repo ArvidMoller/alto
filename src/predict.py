@@ -207,9 +207,7 @@ def load_dataset(path):
 #
 # Returns: 
 # model: The model object. 
-def load_model(path):
-    name = input("Name of desired model ")
-
+def load_model(path, name):
     model = keras.saving.load_model(f"{__file__[:len(__file__)-11]}{path}/{name}.keras")
 
     print("Model loaded")
@@ -225,7 +223,7 @@ def load_model(path):
 #
 # Returns: 
 # void
-def save_predicted_sequence(predicted_sequence, path):
+def save_predicted_sequence(predicted_sequence, path, name):
     current_date = dt.datetime.now(datetime.timezone.utc)
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
@@ -253,7 +251,7 @@ def save_predicted_sequence(predicted_sequence, path):
         e+=1
 
     with open(f"{path}/info.txt", "w") as info:
-        info.write(f"{input("Info about generated pictures (model settings etc.): ")}")
+        info.write(f"{input("Info about generated pictures (model settings etc.): ")}\nPredicted with: {name}")
 
 
 #provisorisk
@@ -321,15 +319,16 @@ def plot_predicted_images(dataset, predicted_sequence):
 
 
 
-check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
+# check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
 dataset = load_dataset("/satellite_imagery_download/images/predict_images")
 
-model = load_model("/models")
+name = input("Name of desired model ")
+model = load_model("/models", name)
 
 predicted_sequence = predict_frames(10, model, dataset)
 
 if input("Should predicted images be saved? (y/n) ") == "y":
-    save_predicted_sequence(predicted_sequence, "predicted_images")
+    save_predicted_sequence(predicted_sequence, "predicted_images", name)
 
 plot_predicted_images(dataset, predicted_sequence)
