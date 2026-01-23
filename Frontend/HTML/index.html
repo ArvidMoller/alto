@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="se">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTO</title>
+    <link rel="stylesheet" href="/Frontend/CSS/index.css">
+</head>
+<body>
+    <section id="navbar">
+        <header>
+            <a href="/Frontend/HTML/index.html" style="font-weight: bolder;">ALTO 🌦</a>
+        </header>
+        <section id="navlinks">
+            <a class="navlink" href="/Frontend/HTML/about.html">ABOUT</a>
+            <a class="navlink" href="/Frontend/HTML/contact.html">CONTACT</a>
+            <a class="navlink" href="https://github.com/ArvidMoller/alto">GITHUB</a>
+            <a class="navlink" href="/Frontend/HTML/model4.html">MODEL4</a>
+        </section>
+    </section>
+    <section id="heroes">
+        <section id="herotext" style="z-index: -1;">
+            <h1 style="text-align: center;">ATMOSPHERIC</h1>
+            <h1 style="text-align: start;">CONVLSTM <span style="font-size: 60%;">for</span></h1>
+            <h1 style="text-align: center">TRACKING</h1>
+            <h1 style="text-align: end">OVERCASTS</h1>
+        </section>
+        <section id="hero">
+            <img id="heroImage" src="/Frontend/Media/Images/cloud.png" alt="Cloud hero image">
+        </section>
+    </section>
+    <section id="bread">
+        <h1 style="text-align: center; font-size: 3rem;">Background</h1>
+        <p class="backgroundText" style="align-self: flex-start;">Väder finns över allt och påverkar oss väldigt mycket. Möjligheten att förutsäga väder ger oss därmed en möjlighet att förutspå hur vi kommer bli påverkade. En av de viktigaste faktorerna till vädret är moln, trots detta är det svårt för dagens modeller att förutsäga molns rörelse. Detta leder ofta till inexakta väderleksrapporter. Därför har detta projektet som syfte att skapa och träna en machine learning-modell för att förutsäga molns rörelser.
+        </p>
+        <p class="backgroundText" style="align-self: flex-end;">En luftmassa är en större mängd luft, till exempel luften över ett land, som beskriver egenskaper hos luften. Framförallt talar man om varma och kalla luftmassor. Vilken typ det är beror på luftens temperatur i förhållande till marken, om luftmassan är varmare än marken är det en varm luftmassa och vice versa. Varma luftmassor förknippas ofta med en stabil atmosfär där luften närmast marken kyls och sjunker, vilket även ger stabilt väder. En kall luftmassa å andra sidan, förknippas med en instabil atmosfär där luften närmast marken värms och stiger genom den kallare luften. Detta ger ett mer instabilt väder.
+        </p>
+        <p class="backgroundText" style="align-self: flex-start">Moln skapas då varma och fuktiga luftmassor stiger och kyls av. Eftersom kall luft inte kan hålla lika mycket fukt kommer luftmassan att bli mättad och därmed kondensera. Då bildas konvektiva moln. De nyskapade molnen kommer sedan att trängas undan av den stigande varmluften. 
+        </p>
+        <p class="backgroundText" style="align-self: flex-end;">En varmfront uppstår när varma luftmassor rör sig mot kalla luftmassor. Den varma luften kommer då glida upp och lägga sig ovanpå den kalla luften. Detta skapar en bred front med moln som stiger framför fronten och blir cirrusmoln. Nederbörd är vanligt vid fronten. 
+        </p>
+        <p class="backgroundText" style="align-self: flex-start">Motsatsen till en varmfront är en kallfront, alltså när kall luft rör sig mot varm luft. Då kommer den kalla luften att lägga sig under den varma luften, vilket pressar upp varmluften. Detta leder till att kallfronter karaktäriseras av smala och höga moln längs fronten som ofta ger nederbörd.
+        </p>
+        <p class="backgroundText" style="align-self: flex-end;">Ett av de viktigaste verktygen för att förutspå väder är vädersatelliter. Detta projekt kommer främst att använda data från satelliterna Meteosat Second Generation (MSG) och Meteosat Third Generation (MTG). MSG och MTG är geostationära satelliter, alltså går deras omloppsbana över ekvatorn och har omloppstiden 24 timmar. Satelliterna befinner sig därför över samma punkt på jorden hela tiden. All data går att komma åt via EUMETSATs hemsida.
+        </p>
+        <p class="backgroundText" style="align-self: flex-start">Både MSG och MTG har flera kanaler som ger olika information. Kanalen “FCI HRFI IR10.5 μm Image” är en MTG kanal som tar bilder dygnet runt i det infraröda ljusspektrat på höga moln. Detta gör kanalen mycket användbar när man ska se fronter som ofta ger höga moln. Kanalen “FCI HRFI VIS0.6 μm Image” å andra sidan ger bilder av lägre moln. Men eftersom bilderna tas i det synliga ljusspektrat kommer det endast att gå att ta bilder på dagen då det finns synligt ljus. Utöver kanaler finns också kompositer, alltså bilder som skapats genom att kombinera olika kanaler. En viktig komposit är MTG-kompositen “Cloud Phase RGB” som ger bilder där moln på olika höjder får olika färger. Höga moln blir blåa medan låga moln får en orange färg. Den sista typen av bilder satelliterna ger är produkter. Detta är kompositer där datan blivit behandlad. Vi kommer främst använda produkten “Cloud Mask” från MSG som ger en bild där alla moln är målade helt vita oavsett höjd med upplösningen 3 km2/pixel. Detta gör det enkelt att se var det ligger moln.
+        </p>
+        <p class="backgroundText" style="align-self: flex-end;">En Convolutional Long-Short Term Memory (ConvLSTM) modell är en machine-learning modell som kombinerar en Convolutional Neural Network (CNN) modell och en Long-Short Term Memory (LSTM) modell. Detta låter modellen generera bilder både med hänsyn till tid och mönster i träningsdatan med bra precision. 
+        </p>
+    </section>
+    <section id="shadowOverlay"></section>
+</body>
+</html>
