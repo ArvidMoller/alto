@@ -254,17 +254,6 @@ def save_predicted_sequence(predicted_sequence, path, name):
         info.write(f"{input("Info about generated pictures (model settings etc.): ")}\nPredicted with: {name}")
 
 
-#provisorisk
-def list_shape(arr):
-    shape = []
-    shape.append(len(arr))
-    while True:
-        try:
-            arr = arr[0]
-            shape.append(len(arr))
-        except:
-            return shape
-
 # Predicts frames based on the images in satellite_imagery_download/images/predict/images and adds them to an numpy array. 
 #
 # Parameters:
@@ -319,7 +308,7 @@ def plot_predicted_images(dataset, predicted_sequence):
 
 
 
-# check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
+check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
 dataset = load_dataset("/satellite_imagery_download/images/predict_images")
 

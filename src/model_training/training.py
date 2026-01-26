@@ -241,7 +241,7 @@ def construct_model(x_train):
     model = keras.models.Model(inp, x)
 
     model.compile(
-        loss=keras.losses.binary_crossentropy,
+        # loss=keras.losses.binary_crossentropy,
         optimizer=keras.optimizers.Adam(1e-4),
         loss="mse"
     )
