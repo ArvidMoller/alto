@@ -70,7 +70,11 @@ def get_image(path, image_cache):
     if path not in image_cache:
         img = load_img(path)
         img = img.convert("L")
-        image_cache[path] = np.float16(img_to_array(img, dtype=np.uint8) / 255)
+
+        # Change based on activation functions, range of input must match activation function. (sigmoid: 0 to 1. relu: 0 to infinty. tanh -1 to 1)
+        image_cache[path] = np.float16(
+            (img_to_array(img, dtype=np.uint8) / 127.5) - 1.0
+        )
 
     return image_cache[path] , image_cache
 
@@ -212,7 +216,7 @@ def construct_model(x_train):
         kernel_size=(5, 5),
         padding="same",
         return_sequences=True,
-        activation="relu",
+        activation="tanh",
     )(inp)
     x = layers.BatchNormalization()(x)
     x = layers.ConvLSTM2D(
@@ -220,7 +224,7 @@ def construct_model(x_train):
         kernel_size=(3, 3),
         padding="same",
         return_sequences=True,
-        activation="relu",
+        activation="tanh",
     )(x)
     x = layers.BatchNormalization()(x)
     x = layers.ConvLSTM2D(
@@ -228,12 +232,12 @@ def construct_model(x_train):
         kernel_size=(1, 1),
         padding="same",
         return_sequences=True,
-        activation="relu",
+        activation="tanh",
     )(x)
     x = layers.Conv3D(
         filters=1, 
         kernel_size=(3, 3, 3), 
-        activation="linear", 
+        activation="tanh", 
         padding="same"
     )(x)
 
@@ -243,7 +247,7 @@ def construct_model(x_train):
     model.compile(
         # loss=keras.losses.binary_crossentropy,
         optimizer=keras.optimizers.Adam(1e-4),
-        loss="mse"
+        loss="mae"
     )
 
     return model
@@ -274,7 +278,7 @@ def load_model_for_training(path):
     model = keras.saving.load_model(f"{path}/{name}_checkpoint.keras")
 
     model.compile(
-        loss=keras.losses.binary_crossentropy,
+        loss="mae",
         optimizer=keras.optimizers.Adam(),
     )
 
@@ -341,7 +345,7 @@ else:
 train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
 
 
-dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 30)
+dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 15)
 
 train_dataset, val_dataset = split_dataset(dataset, 0.9)
 

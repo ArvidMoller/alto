@@ -244,7 +244,12 @@ def save_predicted_sequence(predicted_sequence, path, name):
     
     e = 0
     for i in predicted_sequence:
-        i = np.clip(i * 255.0, 0, 255)
+        # Change this based on output layer activation function. (If sigmoid: clip between 0 & 1. If tanh: clip between -1 & 1)
+        i = np.clip(i, 0, 1.0)
+        #Change this based on output layer activation function. (If sigmoid: multiply by 255. If tanh: add 1 and then multiply by 127.5)
+        i = (i * 255).round().astype(np.uint8)
+        img = array_to_img(i)
+        print(i)
         img = array_to_img(i)
         img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
         
