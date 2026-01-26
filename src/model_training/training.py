@@ -218,7 +218,7 @@ def construct_model(x_train):
         return_sequences=True,
         activation="tanh",
     )(inp)
-    x = layers.BatchNormalization()(x)
+    x = layers.LayerNormalization()(x)
     x = layers.ConvLSTM2D(
         filters=32,
         kernel_size=(3, 3),
@@ -226,7 +226,7 @@ def construct_model(x_train):
         return_sequences=True,
         activation="tanh",
     )(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.LayerNormalization()(x)
     x = layers.ConvLSTM2D(
         filters=32,
         kernel_size=(1, 1),
