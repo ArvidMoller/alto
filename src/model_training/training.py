@@ -297,11 +297,11 @@ def load_model_for_training(path):
 #
 # Returns: 
 # void
-def save_model(model, path, name, dataset_shape, general_model_info, specific_model_info, creation_datetime, finished_datetime):
+def save_model(model, path, name, dataset_shape, general_model_info, specific_model_info, creation_datetime, finished_datetime, high, low):
     model.save(f"{path}/{name}.keras", overwrite=False, zipped=True)
     
     with open(f"{path}/{name}_info.txt", "w") as f:
-        f.write(f"{general_model_info}Dataset shape: {dataset_shape}\n{specific_model_info}Model started training {creation_datetime} and finished training {finished_datetime}")
+        f.write(f"{general_model_info}Dataset shape: {dataset_shape}\nInput range high: {high}\nInput range low: {low}\n{specific_model_info}Model started training {creation_datetime} and finished training {finished_datetime}")
 
 
 # Finds "model[insert number here].keras" name with lowest number. 
@@ -403,4 +403,4 @@ model.fit(
 
 finished_datetime = f"{dt.datetime.now()}"
 
-save_model(model, "../models", name, list_shape(dataset), general_model_info, specific_model_info, creation_datetime, finished_datetime)
+save_model(model, "../models", name, list_shape(dataset), general_model_info, specific_model_info, creation_datetime, finished_datetime, high, low)
