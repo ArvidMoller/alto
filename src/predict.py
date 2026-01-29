@@ -249,8 +249,6 @@ def save_predicted_sequence(predicted_sequence, path, name, low, high):
         #Change this based on output layer activation function. (If sigmoid: multiply by 255. If tanh: add 1 and then multiply by 127.5)
         i = ((i + abs(low)) * (255/(high - low))).round().astype(np.uint8)
         img = array_to_img(i)
-        print(i)
-        img = array_to_img(i)
         img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
         
         e+=1
@@ -325,6 +323,6 @@ model = load_model("/models", name)
 predicted_sequence = predict_frames(10, model, dataset)
 
 if input("Should predicted images be saved? (y/n) ") == "y":
-    save_predicted_sequence(predicted_sequence, "predicted_images", name)
+    save_predicted_sequence(predicted_sequence, "predicted_images", name, low, high)
 
 plot_predicted_images(dataset, predicted_sequence)
