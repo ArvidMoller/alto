@@ -181,7 +181,7 @@ def download_predict_img(images_path, sequence_size):
 #
 # Returns: 
 # dataset: A 4 dimensional numpy array containing each image as arrays. 
-def load_dataset(path):
+def load_dataset(path, low, high):
     dataset = []
     samples = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
     print(samples)
@@ -189,7 +189,7 @@ def load_dataset(path):
     for e in samples:       # loops through the pictures for the next sequence.
         img = load_img(f"{__file__[:len(__file__)-11]}{path}/{e}")     # loads images as a PIL image
         img = img.convert("L")      # Converts images to "true gray-scale" (1 channel)
-        img_arr = img_to_array(img)     # converts images to numpy arrays
+        img_arr = img_to_array(img) / (255/(high - low)) - abs(low)     # converts images to numpy arrays and changes to correct range
         print(img_arr.shape, e)
         dataset.append(img_arr)     # adds image array to python list
 
@@ -223,7 +223,7 @@ def load_model(path, name):
 #
 # Returns: 
 # void
-def save_predicted_sequence(predicted_sequence, path, name):
+def save_predicted_sequence(predicted_sequence, path, name, low, high):
     current_date = dt.datetime.now(datetime.timezone.utc)
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
@@ -245,9 +245,9 @@ def save_predicted_sequence(predicted_sequence, path, name):
     e = 0
     for i in predicted_sequence:
         # Change this based on output layer activation function. (If sigmoid: clip between 0 & 1. If tanh: clip between -1 & 1)
-        i = np.clip(i, 0, 1.0)
+        i = np.clip(i, low, high)
         #Change this based on output layer activation function. (If sigmoid: multiply by 255. If tanh: add 1 and then multiply by 127.5)
-        i = (i * 255).round().astype(np.uint8)
+        i = ((i + abs(low)) * (255/(high - low))).round().astype(np.uint8)
         img = array_to_img(i)
         print(i)
         img = array_to_img(i)
@@ -312,10 +312,12 @@ def plot_predicted_images(dataset, predicted_sequence):
     plt.show()
 
 
+low = int(input("Lowest value in input img array: "))
+high = int(input("Highest value in input img array: "))
 
 check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
-dataset = load_dataset("/satellite_imagery_download/images/predict_images")
+dataset = load_dataset("/satellite_imagery_download/images/predict_images", low, high)
 
 name = input("Name of desired model ")
 model = load_model("/models", name)

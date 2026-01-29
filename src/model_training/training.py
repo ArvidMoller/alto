@@ -66,14 +66,14 @@ def list_shape(arr):
 # Returns:
 # image_cache[path]: The image array associated with the path. 
 # image_cache: The dictionary containing all image arrays.
-def get_image(path, image_cache):
+def get_image(path, image_cache, low, high):
     if path not in image_cache:
         img = load_img(path)
         img = img.convert("L")
 
         # Change based on activation functions, range of input must match activation function. (sigmoid: 0 to 1. relu: 0 to infinty. tanh -1 to 1)
         image_cache[path] = np.float16(
-            (img_to_array(img, dtype=np.uint8) / 127.5) - 1.0
+            (img_to_array(img, dtype=np.uint8)) / (255/(high - low)) - abs(low)
         )
 
     return image_cache[path] , image_cache
@@ -104,7 +104,7 @@ def missing_array():
 #
 # Returns:
 # dataset: A 5 dimensional numpy array containing all training images of shape (samples, sequence_size, height, width, channels). 
-def load_dataset(path, sequence_size, start_index, time_delta):
+def load_dataset(path, sequence_size, start_index, time_delta, low, high):
     dataset = []
     image_cache = {}
 
@@ -136,7 +136,7 @@ def load_dataset(path, sequence_size, start_index, time_delta):
             
         if not any(i in missing_imgs for i in sequence_timestamps):       # Check if all images in sequence_time_arr exist by comparing to missing_imgs
             for i in tqdm(sequence_timestamps, desc="loading images"):
-                img_arr, image_cache = get_image(f"{path}/{i.replace(':','-')}.png", image_cache)
+                img_arr, image_cache = get_image(f"{path}/{i.replace(':','-')}.png", image_cache, low, high)
                 print(list_shape(img_arr), i)
                 sequence.append(img_arr)  
             
@@ -344,8 +344,10 @@ else:
 
 train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
 
+low = int(input("Lowest value in input img array: "))
+high = int(input("Highest value in input img array: "))
 
-dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 15)
+dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 15, low, high)
 
 train_dataset, val_dataset = split_dataset(dataset, 0.9)
 
@@ -358,6 +360,7 @@ print("Training Dataset Shapes: " + str(list_shape(x_train)) + ", " + str(list_s
 print("Validation Dataset Shapes: " + str(list_shape(x_val)) + ", " + str(list_shape(y_val)))
 
 if load_test == "y":
+    print(x_train[0][0])
     exit()
 
 #  ===========================================================================

@@ -15,10 +15,14 @@ import numpy as np
 # print(model_name("../models"))
 
 
-dataset = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]])
+dataset = np.array([[[0, 10], [20, 30]], [[40, 50], [60, 70]]])
 predicted_frame = np.array([[8, 9], [10, 11]])
 
-dataset = list(dataset)
-dataset.append(predicted_frame)
-dataset = np.delete(np.array(dataset), 0, axis=0)
+low = -1
+high = 1
+
+dataset = dataset / (100/(high - low)) - abs(low)
+print(dataset)
+
+dataset = (dataset + abs(low)) * (100/(high - low))
 print(dataset)
