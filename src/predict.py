@@ -312,8 +312,8 @@ def plot_predicted_images(dataset, predicted_sequence):
     plt.show()
 
 
-low = int(input("Lowest value in input img array: "))
-high = int(input("Highest value in input img array: "))
+high = int(input("Input range high: "))
+low = int(input("Input range low: "))
 
 check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 

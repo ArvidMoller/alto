@@ -344,8 +344,8 @@ else:
 
 train_on_checkpoint = input("Should training continue on last checkpoint? (y/n) ").lower()
 
-low = int(input("Lowest value in input img array: "))
-high = int(input("Highest value in input img array: "))
+high = int(input("Input range high: "))
+low = int(input("Input range low: "))
 
 dataset = load_dataset("../satellite_imagery_download/images/images", 10, 0, 15, low, high)
 
