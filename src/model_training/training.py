@@ -278,8 +278,8 @@ def load_model_for_training(path):
     model = keras.saving.load_model(f"{path}/{name}_checkpoint.keras")
 
     model.compile(
-        loss="mae",
         optimizer=keras.optimizers.Adam(),
+        loss="mae"
     )
 
     return model

@@ -241,7 +241,8 @@ def save_predicted_sequence(predicted_sequence, path, name, low, high):
             except:
                 path = path[:(len(path) - 3)]       # remove previous "(number)" ending
     
-    
+
+    predicted_img_sequence = []
     e = 0
     for i in predicted_sequence:
         # Change this based on output layer activation function. (If sigmoid: clip between 0 & 1. If tanh: clip between -1 & 1)
@@ -250,8 +251,13 @@ def save_predicted_sequence(predicted_sequence, path, name, low, high):
         i = ((i + abs(low)) * (255/(high - low))).round().astype(np.uint8)
         img = array_to_img(i)
         img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
+
+        predicted_img_sequence.append(img)
         
         e+=1
+
+    predicted_img_sequence[0].save(f"{path}/{current_date.isoformat().replace(":", "-")}.gif",
+               save_all = True, append_images = predicted_img_sequence[1:], optimized = True, loop = 0, duration = 100)
 
     with open(f"{path}/info.txt", "w") as info:
         info.write(f"{input("Info about generated pictures (model settings etc.): ")}\nPredicted with: {name}")
@@ -310,6 +316,7 @@ def plot_predicted_images(dataset, predicted_sequence):
     plt.show()
 
 
+name = input("Name of desired model: ")
 high = int(input("Input range high: "))
 low = int(input("Input range low: "))
 
@@ -317,7 +324,6 @@ check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
 
 dataset = load_dataset("/satellite_imagery_download/images/predict_images", low, high)
 
-name = input("Name of desired model ")
 model = load_model("/models", name)
 
 predicted_sequence = predict_frames(10, model, dataset)
