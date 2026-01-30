@@ -26,6 +26,26 @@
             <h1 style="text-align: end"></h1>
         </section>
     </section>
+
+    <button onclick="run()">Kör Python</button>
+    <p id="output"></p>
+
+    <script>
+        async function run() {
+        const response = await fetch("http://127.0.0.1:8000/run", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ number: 7 })
+        });
+
+        const data = await response.json();
+        document.getElementById("output").innerText =
+            "Resultat från Python: " + data.result;
+        }
+    </script>
+
     <section id="shadowOverlay"></section>
 </body>
 </html>
