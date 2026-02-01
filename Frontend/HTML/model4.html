@@ -1,51 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="se">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ALTO model4</title>
-    <link rel="stylesheet" href="/Frontend/CSS/model4.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/Frontend/CSS/model4.css" />
+  </head>
+  <body>
     <section id="navbar">
-        <header>
-            <a href="/Frontend/HTML/index.html" >ALTO 🌦</a>
-        </header>
-        <section id="navlinks">
-            <a class="navlink" href="/Frontend/HTML/about.html">ABOUT</a>
-            <a class="navlink" href="/Frontend/HTML/contact.html">CONTACT</a>
-            <a class="navlink" href="https://github.com/ArvidMoller/alto" target="_blank">GITHUB</a>
-            <a class="navlink" href="/Frontend/HTML/model4.html" style="font-weight: bolder;">MODEL4</a>
-        </section>
+      <header>
+        <a href="/Frontend/HTML/index.html">ALTO 🌦</a>
+      </header>
+      <section id="navlinks">
+        <a class="navlink" href="/Frontend/HTML/about.html">ABOUT</a>
+        <a class="navlink" href="/Frontend/HTML/contact.html">CONTACT</a>
+        <a
+          class="navlink"
+          href="https://github.com/ArvidMoller/alto"
+          target="_blank"
+          >GITHUB</a
+        >
+        <a
+          class="navlink"
+          href="/Frontend/HTML/model4.html"
+          style="font-weight: bolder"
+          >MODEL4</a
+        >
+      </section>
     </section>
     <section id="heroes">
-        <section id="herotext" style="z-index: -1;">
-            <h1 style="text-align: center;">MODEL4</h1>
-            <h1 style="text-align: start;"></h1>
-            <h5 style="text-align: center">[Prediction will be made here]</h5>
-            <h1 style="text-align: end"></h1>
-        </section>
+      <section id="herotext" style="z-index: -1">
+        <h1 style="text-align: center">MODEL4</h1>
+        <h1 style="text-align: start"></h1>
+        <h5 style="text-align: center">[Prediction will be made here]</h5>
+        <h1 style="text-align: end"></h1>
+      </section>
     </section>
 
     <button onclick="run()">Kör Python</button>
     <p id="output"></p>
 
     <script>
-        async function run() {
+      async function run() {
+        document.getElementById("output").innerText = "Kör...";
         const response = await fetch("http://127.0.0.1:8000/run", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ number: 7 })
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ number: 7 }),
         });
+        document.getElementById("output").innerText = "Uppdaterar...";
 
         const data = await response.json();
+        document.getElementById("output").innerText = "Avkodar...";
         document.getElementById("output").innerText =
-            "Resultat från Python: " + data.result;
-        }
+          "Resultat från Python: " + data.result;
+      }
     </script>
 
     <section id="shadowOverlay"></section>
-</body>
+  </body>
 </html>
