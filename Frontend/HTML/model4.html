@@ -39,10 +39,12 @@
 
     <button onclick="run()">Kör Python</button>
     <p id="output"></p>
+    <button onclick="predict()">Predict images</button>
+    <p id="output2"></p>
 
     <script>
       async function run() {
-        document.getElementById("output").innerText = "Kör...";
+        document.querySelector("output").innerText = "Kör...";
         const response = await fetch("http://127.0.0.1:8000/run", {
           method: "POST",
           headers: {
@@ -50,13 +52,30 @@
           },
           body: JSON.stringify({ number: 7 }),
         });
-        document.getElementById("output").innerText = "Uppdaterar...";
+        document.querySelector("output").innerText = "Uppdaterar...";
 
         const data = await response.json();
-        document.getElementById("output").innerText = "Avkodar...";
-        document.getElementById("output").innerText =
+        document.querySelector("output").innerText = "Avkodar...";
+        document.querySelector("output").innerText =
           "Resultat från Python: " + data.result;
       }
+      async function predict() {
+        document.querySelector("output2").innerText = "Kör...";
+        const response = await fetch("http://127.0.0.1:8000/prediction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ number: 7 }),
+        });
+        document.querySelector("output2").innerText = "Uppdaterar...";
+
+        const data = await response.json();
+        document.querySelector("output2").innerText = "Avkodar...";
+        document.querySelector("output2").innerText =
+          "Prediction was " + data.result;
+      }
+
     </script>
 
     <section id="shadowOverlay"></section>
