@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -5,12 +6,14 @@ import datetime as dt
 import time as t
 
 import torch
+from pytorch_msssim import SSIM
 
 os.environ["KERAS_BACKEND"] = "torch"
 
 import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
+from keras import ops
 
 import io
 from IPython.display import Image, display
@@ -27,9 +30,35 @@ import cv2
 import numpy as np
 
 
+print("Hello World")
+
 keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
 
+ssim_module = SSIM(data_range=2, size_average=True, channel=1, nonnegative_ssim=True)
+
+@keras.saving.register_keras_serializable()
+def combined_loss(y_true, y_pred):
+    # L1 loss
+    l1 = ops.mean(ops.abs(y_true - y_pred))
+
+    # Convert to torch tensors explicitly
+    y_true_t = torch.as_tensor(y_true)
+    y_pred_t = torch.as_tensor(y_pred)
+
+    # y shape: (B, T, H, W, C)
+    B, T, H, W, C = y_true_t.shape
+
+    # reshape to (B*T, C, H, W)
+    y_true_t = y_true_t.permute(0, 1, 4, 2, 3).reshape(B * T, C, H, W)
+    y_pred_t = y_pred_t.permute(0, 1, 4, 2, 3).reshape(B * T, C, H, W)
+
+    y_true_t = y_true_t.float()
+    y_pred_t = y_pred_t.float()
+
+    ssim_loss = 1.0 - ssim_module(y_true_t, y_pred_t)
+
+    return 0.8 * l1 + 0.2 * ssim_loss
 
 # Checks if the latest images for predicting exists by checking their name with the current time. 
 #
@@ -325,8 +354,8 @@ predict_path = "/satellite_imagery_download/images/predict_images"
 time_delta = int(input("Time delta between pictures: (has to be a multiple of 15, and match the delta the model was trained on) "))
 frontend_use = False
 
-check_predict_img(predict_path, 10)
-
+check_predict_img(predict_path, 10, time_delta)
+s
 dataset = load_dataset(predict_path, low, high)
 
 model = load_model("/models", name)

@@ -205,7 +205,7 @@ def shift_frames(data):
 # def combined_loss(y_true, y_pred):
 #     return 0.8 * ops.mean(ops.abs(y_true - y_pred)) + 0.2 * (1 - ssim_module(y_true, y_pred))
 
-
+@keras.saving.register_keras_serializable()
 def combined_loss(y_true, y_pred):
     # L1 loss
     l1 = ops.mean(ops.abs(y_true - y_pred))
