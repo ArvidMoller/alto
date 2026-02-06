@@ -8,12 +8,14 @@ from tqdm import tqdm
 
 import torch
 from torch.utils.data import Dataset, DataLoader
+from pytorch_msssim import SSIM
 
 os.environ["KERAS_BACKEND"] = "torch"
 
 import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
+from keras import ops
 
 import io
 # import imageio
@@ -22,6 +24,8 @@ from IPython.display import Image, display
 
 keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
+
+ssim_module = SSIM(data_range=2, size_average=True, channel=1, nonnegative_ssim=True)
 
 
 class ConvLSTMDataset(Dataset):
@@ -198,6 +202,33 @@ def shift_frames(data):
     return x, y
 
 
+# def combined_loss(y_true, y_pred):
+#     return 0.8 * ops.mean(ops.abs(y_true - y_pred)) + 0.2 * (1 - ssim_module(y_true, y_pred))
+
+
+def combined_loss(y_true, y_pred):
+    # L1 loss
+    l1 = ops.mean(ops.abs(y_true - y_pred))
+
+    # Convert to torch tensors explicitly
+    y_true_t = torch.as_tensor(y_true)
+    y_pred_t = torch.as_tensor(y_pred)
+
+    # y shape: (B, T, H, W, C)
+    B, T, H, W, C = y_true_t.shape
+
+    # reshape to (B*T, C, H, W)
+    y_true_t = y_true_t.permute(0, 1, 4, 2, 3).reshape(B * T, C, H, W)
+    y_pred_t = y_pred_t.permute(0, 1, 4, 2, 3).reshape(B * T, C, H, W)
+
+    y_true_t = y_true_t.float()
+    y_pred_t = y_pred_t.float()
+
+    ssim_loss = 1.0 - ssim_module(y_true_t, y_pred_t)
+
+    return 0.8 * l1 + 0.2 * ssim_loss
+
+
 # Constructs model and prepares it for training by configuring layers and compiling. 
 #
 # Paramiters: 
@@ -247,7 +278,7 @@ def construct_model(x_train):
     model.compile(
         # loss=keras.losses.binary_crossentropy,
         optimizer=keras.optimizers.Adam(1e-4),
-        loss="mae"
+        loss=combined_loss
     )
 
     return model
@@ -279,7 +310,7 @@ def load_model_for_training(path):
 
     model.compile(
         optimizer=keras.optimizers.Adam(),
-        loss="mae"
+        loss=combined_loss
     )
 
     return model
