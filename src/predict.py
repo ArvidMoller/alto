@@ -39,7 +39,7 @@ print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_devic
 #
 # Returns: 
 # void
-def check_perdict_img(path, sequence_size):
+def check_predict_img(path, sequence_size, time_delta):
     images = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
     
     current_datetime = dt.datetime.now(datetime.timezone.utc)
@@ -49,7 +49,7 @@ def check_perdict_img(path, sequence_size):
         for i in images:
             os.remove(f"{__file__[:len(__file__)-11]}{path}/{i}")
 
-        download_predict_img(path, sequence_size)
+        download_predict_img(path, sequence_size, time_delta)
         
 
 # CURRENTLY NOT IN USE!
@@ -92,7 +92,7 @@ def remove_background(file_name):
 #
 # Returns: 
 # void
-def download_predict_img(images_path, sequence_size):
+def download_predict_img(images_path, sequence_size, time_delta):
     # Turn off SSL certificate verification warnings
     ssl._create_default_https_context = ssl._create_unverified_context
     warnings.simplefilter("ignore")
@@ -129,7 +129,7 @@ def download_predict_img(images_path, sequence_size):
     end_date = dt.datetime.fromisoformat(end_date)
 
     start_date = end_date - dt.timedelta(minutes=15 * (sequence_size-1))
-    delta = datetime.timedelta(minutes=int(input("Time delta between pictures: (has to be a multiple of 15, and match the delta the model was trained on) ")))
+    delta = datetime.timedelta(minutes = time_delta)
 
     # delete_background = input("Should blue and green be changed to black in predict images? (y/n)")
 
@@ -164,7 +164,7 @@ def download_predict_img(images_path, sequence_size):
         start_date += delta
 
         #kod för att spara output bild
-        image_filename = f"{time[1].replace(":", "-")}.png"
+        image_filename = f"{time[1].replace(':', '-')}.png"
         with open(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}", "wb") as f: #typ skapar filen, här väljs sökväg och namn, "wb" = writebinary behövs för filer som inte är i textformat (viktigt annars korrupt!)
             f.write(output.read()) #skriver till output med binärkod till PNG filen
 
@@ -223,12 +223,12 @@ def load_model(path, name):
 #
 # Returns: 
 # void
-def save_predicted_sequence(predicted_sequence, path, name, low, high):
+def save_predicted_sequence(predicted_sequence, path, name, low, high, info_text, frontend):
     current_date = dt.datetime.now(datetime.timezone.utc)
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
 
-    path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(":", "-")}-00.000"
+    path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(':', '-')}-00.000"
 
     try:
         os.mkdir(path)
@@ -244,24 +244,26 @@ def save_predicted_sequence(predicted_sequence, path, name, low, high):
 
     predicted_img_sequence = []
     e = 0
-    for i in predicted_sequence:
+    for i, image in enumerate(predicted_sequence):
         # Change this based on output layer activation function. (If sigmoid: clip between 0 & 1. If tanh: clip between -1 & 1)
-        i = np.clip(i, low, high)
+        image = np.clip(image, low, high)
         #Change this based on output layer activation function. (If sigmoid: multiply by 255. If tanh: add 1 and then multiply by 127.5)
-        i = ((i + abs(low)) * (255/(high - low))).round().astype(np.uint8)
-        img = array_to_img(i)
-        img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(":", "-")}-00.000.png")
+        image = ((image + abs(low)) * (255/(high - low))).round().astype(np.uint8)
+        img = array_to_img(image)
+        if frontend:
+            img.save(f"{path}/{i}.png")
+        else:
+            img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(':', '-')}-00.000.png")
 
         predicted_img_sequence.append(img)
         
         e+=1
 
-    predicted_img_sequence[0].save(f"{path}/{current_date.isoformat().replace(":", "-")}.gif",
+    predicted_img_sequence[0].save(f"{path}/{current_date.isoformat().replace(':', '-')}.gif",
                save_all = True, append_images = predicted_img_sequence[1:], optimized = True, loop = 0, duration = 100)
 
     with open(f"{path}/info.txt", "w") as info:
-        info.write(f"{input("Info about generated pictures (model settings etc.): ")}\nPredicted with: {name}")
-
+        info.write(f"{info_text}\nPredicted with: {name}")
 
 # Predicts frames based on the images in satellite_imagery_download/images/predict/images and adds them to an numpy array. 
 #
@@ -319,16 +321,20 @@ def plot_predicted_images(dataset, predicted_sequence):
 name = input("Name of desired model: ")
 high = int(input("Input range high: "))
 low = int(input("Input range low: "))
+predict_path = "/satellite_imagery_download/images/predict_images"
+time_delta = int(input("Time delta between pictures: (has to be a multiple of 15, and match the delta the model was trained on) "))
+frontend_use = False
 
-check_perdict_img("/satellite_imagery_download/images/predict_images", 10)
+check_predict_img(predict_path, 10)
 
-dataset = load_dataset("/satellite_imagery_download/images/predict_images", low, high)
+dataset = load_dataset(predict_path, low, high)
 
 model = load_model("/models", name)
 
 predicted_sequence = predict_frames(10, model, dataset)
 
 if input("Should predicted images be saved? (y/n) ") == "y":
-    save_predicted_sequence(predicted_sequence, "predicted_images", name, low, high)
+    info_text = input("Info about generated pictures (model settings etc.): ")
+    save_predicted_sequence(predicted_sequence, "predicted_images", name, low, high, info_text, frontend_use)
 
 plot_predicted_images(dataset, predicted_sequence)

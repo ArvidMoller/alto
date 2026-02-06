@@ -5,13 +5,14 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from testlogich import heavy_calculation
+from apiprediction import run_predict
 
 app = FastAPI()
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500"],  # exakt din frontend
+    allow_origins=["http://127.0.0.1:5500"],  # måste matcha port som webbsidan körs på
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -30,6 +31,9 @@ def run_python(data: InputData):
 
 @app.post("/prediction")
 def run_prediction():
+    prediction = "unsuccessful"
     print("running prediction")
-    #kod kommer
-    return {}
+    run_predict()
+    print("prediction finished")
+    prediction = "successful"
+    return {"result": prediction}
