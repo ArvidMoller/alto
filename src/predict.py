@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -29,8 +28,6 @@ import datetime
 import cv2
 import numpy as np
 
-
-print("Hello World")
 
 keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
@@ -72,9 +69,10 @@ def check_predict_img(path, sequence_size, time_delta):
     images = os.listdir(f"{__file__[:len(__file__)-11]}{path}")
     
     current_datetime = dt.datetime.now(datetime.timezone.utc)
-    current_datetime = (current_datetime + dt.timedelta(minutes=(current_datetime.minute // 15 * 15) - current_datetime.minute - 15)).isoformat()[:16].replace(":", "-") + "-00.000.png"
+    current_datetime = current_datetime + dt.timedelta(minutes=(current_datetime.minute // 15 * 15) - current_datetime.minute - 15)
+    current_datetime_iso = current_datetime.isoformat()[:16].replace(":", "-") + "-00.000.png"
 
-    if len(images) != sequence_size or images[-1] != current_datetime:
+    if (len(images) != sequence_size) or (images[-1] != current_datetime_iso) or (images[0] != (current_datetime - (dt.timedelta(minutes=(time_delta*(sequence_size-1))))).isoformat()[:16].replace(":", "-") + "-00.000.png"):
         for i in images:
             os.remove(f"{__file__[:len(__file__)-11]}{path}/{i}")
 
@@ -157,7 +155,7 @@ def download_predict_img(images_path, sequence_size, time_delta):
     end_date = (end_date + dt.timedelta(minutes=(end_date.minute // 15 * 15) - end_date.minute - 15)).isoformat()[:16]
     end_date = dt.datetime.fromisoformat(end_date)
 
-    start_date = end_date - dt.timedelta(minutes=15 * (sequence_size-1))
+    start_date = end_date - dt.timedelta(minutes=time_delta * (sequence_size-1))
     delta = datetime.timedelta(minutes = time_delta)
 
     # delete_background = input("Should blue and green be changed to black in predict images? (y/n)")
@@ -252,7 +250,7 @@ def load_model(path, name):
 #
 # Returns: 
 # void
-def save_predicted_sequence(predicted_sequence, path, name, low, high, info_text, frontend):
+def save_predicted_sequence(predicted_sequence, path, name, time_delta, low, high, info_text, frontend):
     current_date = dt.datetime.now(datetime.timezone.utc)
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
@@ -292,7 +290,8 @@ def save_predicted_sequence(predicted_sequence, path, name, low, high, info_text
                save_all = True, append_images = predicted_img_sequence[1:], optimized = True, loop = 0, duration = 100)
 
     with open(f"{path}/info.txt", "w") as info:
-        info.write(f"{info_text}\nPredicted with: {name}")
+        info.write(f"{info_text}\nPredicted with {name} at delta {time_delta} minuites.")
+
 
 # Predicts frames based on the images in satellite_imagery_download/images/predict/images and adds them to an numpy array. 
 #
@@ -351,11 +350,11 @@ name = input("Name of desired model: ")
 high = int(input("Input range high: "))
 low = int(input("Input range low: "))
 predict_path = "/satellite_imagery_download/images/predict_images"
-time_delta = int(input("Time delta between pictures: (has to be a multiple of 15, and match the delta the model was trained on) "))
+time_delta = int(input("Time delta between pictures: (has to be a multiple of 15) "))
 frontend_use = False
 
 check_predict_img(predict_path, 10, time_delta)
-s
+
 dataset = load_dataset(predict_path, low, high)
 
 model = load_model("/models", name)
@@ -364,6 +363,6 @@ predicted_sequence = predict_frames(10, model, dataset)
 
 if input("Should predicted images be saved? (y/n) ") == "y":
     info_text = input("Info about generated pictures (model settings etc.): ")
-    save_predicted_sequence(predicted_sequence, "predicted_images", name, low, high, info_text, frontend_use)
+    save_predicted_sequence(predicted_sequence, "predicted_images", name, time_delta, low, high, info_text, frontend_use)
 
 plot_predicted_images(dataset, predicted_sequence)
