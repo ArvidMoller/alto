@@ -255,7 +255,7 @@ def save_predicted_sequence(predicted_sequence, path, name, time_delta, low, hig
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
 
-    path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(':', '-')}-00.000"
+    path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(':', '-')}.000"
 
     try:
         os.mkdir(path)
