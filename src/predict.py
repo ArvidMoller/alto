@@ -280,7 +280,7 @@ def save_predicted_sequence(predicted_sequence, path, name, time_delta, low, hig
         if frontend:
             img.save(f"{path}/{i}.png")
         else:
-            img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(':', '-')}-00.000.png")
+            img.save(f"{path}/{(current_date + dt.timedelta(minutes=15 * (e+1))).isoformat().replace(':', '-')}.000.png")
 
         predicted_img_sequence.append(img)
         
