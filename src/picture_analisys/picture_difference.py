@@ -11,12 +11,21 @@ else:
     img1 = cv2.imread(input("Input full path to img1: "))
     img2 = cv2.imread(input("Input full path to img2: "))
 
+img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+within_range_count = 0
+for a, b in zip(img1, img2):
+    for img1_pixel, img2_pixel in zip(a, b):
+        if abs(int(img1_pixel) - int(img2_pixel)) <= 10:
+            within_range_count += 1
+
+
 diff = cv2.absdiff(img1, img2)
 
-non_zero_pixels = np.count_nonzero(diff)
 total_pixels = img1.size
 
-procentage = 100 - ((non_zero_pixels / total_pixels) * 100)
+procentage = (within_range_count / total_pixels) * 100
 
 imgs = (img1, img2, diff)
 img_names = ("img1", "img2", "diff")
@@ -28,9 +37,9 @@ for i, ax in enumerate(axes):
     ax.set_title(img_names[i])
     ax.axis("off")
 
-plt.text(-1300, 600, f"Procentage of matching pixels: {procentage}%", fontsize=22)
+plt.text(-1400, 600, f"Procentage of pixels within 10 points: {procentage}%", fontsize=22)
 
 # Display the figure.
 plt.show()
 
-print(f"Procentage of matching pixels is: {procentage}%")
+print(f"Procentage of pixels within 10 points: {procentage}%")
