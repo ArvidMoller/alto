@@ -1,7 +1,13 @@
+# File: picture_difference.py
+# Author: Arvid Möller, Olof Ericsson
+# Date: 2026-03-01
+# Description: Calculates the percent of pixels differing more than 10 values between predicted images and real images.
+# Required files: Predicted images, satellite images.
+# Required libraries: os, cv2, glob, matplotlib
+
 import os
 import cv2
 import glob
-import numpy as np
 import matplotlib.pyplot as plt
 
 compare_type = input("Compare predicted with real? (y/n)").lower()

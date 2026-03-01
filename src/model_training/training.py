@@ -1,5 +1,11 @@
+# File: training.py
+# Author: Arvid Möller, Olof Ericsson
+# Date: 2026-03-01
+# Description: Traines a convLSTM model on satellite images. 
+# Required files: Satellite images ([ISO datetime].png)
+# Required libraries: numpy, os, datetime, random, copy, tqdm, torch, pytorch_msssim, keras
+
 import numpy as np
-import matplotlib.pyplot as plt
 import os
 import datetime as dt
 import random
@@ -16,11 +22,6 @@ import keras
 from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
 from keras import ops
-
-import io
-# import imageio
-from IPython.display import Image, display
-# from ipywidgets import widgets, Layout, HBox
 
 keras.mixed_precision.set_global_policy("mixed_float16")
 print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_device_name())
@@ -84,6 +85,9 @@ def get_image(path, image_cache, low, high):
 
 
 # Adds all missing images from download_log.txt to an array
+#
+# Paramiters:
+# void.
 #
 # Returns:
 # missing_imgs: An array containing the names of all the missing images
@@ -202,9 +206,14 @@ def shift_frames(data):
     return x, y
 
 
-# def combined_loss(y_true, y_pred):
-#     return 0.8 * ops.mean(ops.abs(y_true - y_pred)) + 0.2 * (1 - ssim_module(y_true, y_pred))
-
+# Calculates loss as a composite of SSIM loss and MAE loss. MAE loss has a higher impact on total loss than SSIM (80% MAE, 20% SSIM)
+# 
+# Paramiters:
+# y_true: The true/real y values.
+# y_pred: The predicted y values. 
+# 
+# Return: 
+# total_loss: The combined loss from SSIM and MAE.
 @keras.saving.register_keras_serializable()
 def combined_loss(y_true, y_pred):
     # L1 loss
@@ -284,14 +293,14 @@ def construct_model(x_train):
     return model
 
 
-# ¯\_(ツ)_/¯
+# Generates images for training by looping through the dataloader object containing all training images. 
 #
 # Parameters:
 # dataloader: The dataloader object.
 #
 # Yeild:
-# x: ¯\_(ツ)_/¯
-# y: ¯\_(ツ)_/¯
+# x: Array containing x images.
+# y: Array conatining y images (y image index = x image index + 1)
 def dataloader_generator(dataloader):
     for x, y in dataloader:
         yield x, y
@@ -322,9 +331,13 @@ def load_model_for_training(path):
 # model: The model object.
 # path: The path the file should be saved at. 
 # name: The name of the saved model.
-# ...
+# dataset_shape: Shape of the training dataset.
+# general_model_info: General info about model, entered by user. 
+# specific_model_info: Specific info about model conatining number of epochs, batch size, amount of filters and kernel sizes.
 # creation_datetime: The date and time when the model began training
 # finished_datetime: The date and time when the model finished training
+# high: Highest value in image array, often 1.
+# low: Lowest value in image array, often 1 or 0.
 #
 # Returns: 
 # void

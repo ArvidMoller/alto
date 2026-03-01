@@ -1,3 +1,10 @@
+# File: predict.py
+# Author: Arvid Möller, Olof Ericsson
+# Date: 2026-03-01
+# Description: Generates 10 satellite images covering the next 2 1/2 hours by loading a pre-trained convLSTM model and downloading the 10 most recent satellite images.
+# Required files: Pre-trained model ([model_name].keras).
+# Required libraries: numpy, matplotlib, os, datetime, time, torch, pytorch_msssim, keras, warnings, owslib, eumdac, ssl, cv2
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -10,12 +17,8 @@ from pytorch_msssim import SSIM
 os.environ["KERAS_BACKEND"] = "torch"
 
 import keras
-from keras import layers
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
 from keras import ops
-
-import io
-from IPython.display import Image, display
 
 import warnings
 from owslib.wcs import WebCoverageService
@@ -24,9 +27,7 @@ from owslib.fes import *
 import datetime
 import eumdac
 import ssl
-import datetime
 import cv2
-import numpy as np
 
 
 keras.mixed_precision.set_global_policy("mixed_float16")
@@ -34,6 +35,15 @@ print("Pytorch version. ", torch.__version__, "GPU name: ", torch.cuda.get_devic
 
 ssim_module = SSIM(data_range=2, size_average=True, channel=1, nonnegative_ssim=True)
 
+
+# Calculates loss as a composite of SSIM loss and MAE loss. MAE loss has a higher impact on total loss than SSIM (80% MAE, 20% SSIM)
+# 
+# Paramiters:
+# y_true: The true/real y values.
+# y_pred: The predicted y values. 
+# 
+# Return: 
+# total_loss: The combined loss from SSIM and MAE.
 @keras.saving.register_keras_serializable()
 def combined_loss(y_true, y_pred):
     # L1 loss
@@ -55,12 +65,14 @@ def combined_loss(y_true, y_pred):
 
     ssim_loss = 1.0 - ssim_module(y_true_t, y_pred_t)
 
-    return 0.8 * l1 + 0.2 * ssim_loss
+    total_loss = 0.8 * l1 + 0.2 * ssim_loss
+
+    return total_loss
 
 # Checks if the latest images for predicting exists by checking their name with the current time. 
 #
 # Parameters:
-# path: Path to images,
+# path: Path to images
 # sequence_size: Number of images per sequence. Must match with the number the model is trained on.
 #
 # Returns: 

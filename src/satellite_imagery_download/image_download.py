@@ -1,3 +1,10 @@
+# File: image_download.py
+# Author: Arvid Möller, Olof Ericsson
+# Date: 2026-03-01
+# Description: Downloads satellite images from EUMETSAT API and WCS API. 
+# Required files: void.
+# Required libraries: warnings, owslib, datetime, eumdac, ssl, cv2, numpy, argparse, sys, pathlib, time, tqdm.
+
 import warnings
 from owslib.wcs import WebCoverageService
 from owslib.util import Authentication
@@ -5,7 +12,6 @@ from owslib.fes import *
 import datetime
 import eumdac
 import ssl
-import datetime
 import cv2
 import numpy as np
 import argparse
