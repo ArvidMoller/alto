@@ -172,6 +172,8 @@ def download_predict_img(images_path, sequence_size, time_delta):
 
     # delete_background = input("Should blue and green be changed to black in predict images? (y/n)")
 
+    previous_image_downloaded = False
+
     # iterate over range of dates
     while (start_date <= end_date):
         # Set date and time 
@@ -196,8 +198,32 @@ def download_predict_img(images_path, sequence_size, time_delta):
                     print(f"Downlaod of picture at {time[1]} was unsuccessfull. Trying again in 3 seconds.")
                     
                     t.sleep(3)
+                elif start_date == end_date:
+                    print(f"Download of picture at {time[1]} was unsuccessfull 5 times. Downloading previous image due to error: \n{err}")
+
+                    try:
+                        start_date -= (10*delta)
+
+                        time = [f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000Z", f"{start_date.year}-{start_date.month:02}-{start_date.day:02}T{start_date.hour:02}:{start_date.minute:02}:00.000"]
+
+                        payload = {
+                            'identifier' : target_layer,
+                            'format' : format_option,
+                            'crs' : 'EPSG:4326',\
+                            'subsets' : [('Lat',region[1],region[3]),\
+                                        ('Long',region[0],region[2]), \
+                                        ('Time',time[0],time[1])],
+                            'access_token': token
+                        }
+                        
+                        output = wcs.getCoverage(**payload)
+                        previous_image_downloaded = True
+                        break
+                    except Exception as err:
+                        print(f"Download of picture at {time[1]} was unsuccessfull. Stopping download due to error: \n{err}")
+                        exit()
                 else:
-                    print(f"Download of of picture at {time[1]} was unsuccessfull 5 times. Stopping download due to error: \n{err}")
+                    print(f"Download of picture at {time[1]} was unsuccessfull 5 times. Stopping download due to error: \n{err}")
                     exit()
         
         start_date += delta
@@ -211,6 +237,9 @@ def download_predict_img(images_path, sequence_size, time_delta):
         #     remove_background(f"{__file__[:len(__file__)-11]}{images_path}/{image_filename}")
 
         print(output, time[1])
+
+        if previous_image_downloaded == True:
+            start_date += (10*delta)
 
 
 # Loads the dataset the prediction is based on by looping through the predict_images directory and converting the images to numpy arrays. 
@@ -364,9 +393,16 @@ def plot_predicted_images(dataset, predicted_sequence):
     # Display the figure.
     plt.show()
 
+
+# The main function that calls help functions in order to generate predicted images. 
+# 
+# Paramiters:
+# void
+#
+# Returns:
+# void
 def main():
     name = input("Name of desired model: ")
-    print("sjkut mig i huvu")
     high = int(input("Input range high: "))
     low = int(input("Input range low: "))
     predict_path = "/satellite_imagery_download/images/predict_images"
@@ -386,6 +422,7 @@ def main():
         save_predicted_sequence(predicted_sequence, "predicted_images", name, time_delta, low, high, info_text, frontend_use)
 
     plot_predicted_images(dataset, predicted_sequence)
+
 
 if __name__ == "__main__":
     main()

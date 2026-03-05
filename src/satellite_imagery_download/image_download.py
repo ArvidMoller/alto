@@ -154,7 +154,7 @@ with tqdm(total=total_steps, desc="downloading images") as pbar:
                     
                     t.sleep(3)
                 else:
-                    print(f"Download of of picture at {time[1]} was unsuccessfull 5 times due to error: \n{err}")
+                    print(f"Download of picture at {time[1]} was unsuccessfull 5 times due to error: \n{err}")
                     with open("images/download_log.txt", "a") as f:
                         f.write(f"{time[1]}, {err}\n")
 
