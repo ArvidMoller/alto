@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-from testlogich import heavy_calculation
-from apiprediction import run_predict
+from .testlogich import heavy_calculation
+from .apiprediction import run_predict
 
 app = FastAPI()
 

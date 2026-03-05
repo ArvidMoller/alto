@@ -267,18 +267,21 @@ def save_predicted_sequence(predicted_sequence, path, name, time_delta, low, hig
     current_date = (current_date + dt.timedelta(minutes=(current_date.minute // 15 * 15) - current_date.minute - 15)).isoformat()[:16]
     current_date = dt.datetime.fromisoformat(current_date)
 
-    path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(':', '-')}.000"
-
-    try:
-        os.mkdir(path)
-    except:
-        for i in range(1, 1000):
-            try:
-                path =f"{path}({i})"
-                os.mkdir(path)
-                break
-            except:
-                path = path[:(len(path) - 3)]       # remove previous "(number)" ending
+    if not frontend:
+        path = f"{__file__[:len(__file__)-14]}{path}/{current_date.isoformat().replace(':', '-')}.000"
+        
+        try:
+            os.mkdir(path)
+        except:
+            for i in range(1, 1000):
+                try:
+                    path =f"{path}({i})"
+                    os.mkdir(path)
+                    break
+                except:
+                    path = path[:(len(path) - 3)]       # remove previous "(number)" ending
+    else:
+        path = f"{__file__[:len(__file__)-14]}{path}"
     
 
     predicted_img_sequence = []
@@ -298,8 +301,12 @@ def save_predicted_sequence(predicted_sequence, path, name, time_delta, low, hig
         
         e+=1
 
-    predicted_img_sequence[0].save(f"{path}/{current_date.isoformat().replace(':', '-')}.gif",
-               save_all = True, append_images = predicted_img_sequence[1:], optimized = True, loop = 0, duration = 100)
+    if not frontend:
+        predicted_img_sequence[0].save(f"{path}/{current_date.isoformat().replace(':', '-')}.gif",
+            save_all = True, append_images = predicted_img_sequence[1:], optimized = True, loop = 0, duration = 100)
+    else:
+        predicted_img_sequence[0].save(f"{path}.gif",
+            save_all = True, append_images = predicted_img_sequence[1:], optimized = True, loop = 0, duration = 100)
 
     with open(f"{path}/info.txt", "w") as info:
         info.write(f"{info_text}\nPredicted with {name} at delta {time_delta} minuites.")
@@ -357,24 +364,28 @@ def plot_predicted_images(dataset, predicted_sequence):
     # Display the figure.
     plt.show()
 
+def main():
+    name = input("Name of desired model: ")
+    print("sjkut mig i huvu")
+    high = int(input("Input range high: "))
+    low = int(input("Input range low: "))
+    predict_path = "/satellite_imagery_download/images/predict_images"
+    time_delta = int(input("Time delta between pictures: (has to be a multiple of 15) "))
+    frontend_use = False
 
-name = input("Name of desired model: ")
-high = int(input("Input range high: "))
-low = int(input("Input range low: "))
-predict_path = "/satellite_imagery_download/images/predict_images"
-time_delta = int(input("Time delta between pictures: (has to be a multiple of 15) "))
-frontend_use = False
+    check_predict_img(predict_path, 10, time_delta)
 
-check_predict_img(predict_path, 10, time_delta)
+    dataset = load_dataset(predict_path, low, high)
 
-dataset = load_dataset(predict_path, low, high)
+    model = load_model("/models", name)
 
-model = load_model("/models", name)
+    predicted_sequence = predict_frames(10, model, dataset)
 
-predicted_sequence = predict_frames(10, model, dataset)
+    if input("Should predicted images be saved? (y/n) ") == "y":
+        info_text = input("Info about generated pictures (model settings etc.): ")
+        save_predicted_sequence(predicted_sequence, "predicted_images", name, time_delta, low, high, info_text, frontend_use)
 
-if input("Should predicted images be saved? (y/n) ") == "y":
-    info_text = input("Info about generated pictures (model settings etc.): ")
-    save_predicted_sequence(predicted_sequence, "predicted_images", name, time_delta, low, high, info_text, frontend_use)
+    plot_predicted_images(dataset, predicted_sequence)
 
-plot_predicted_images(dataset, predicted_sequence)
+if __name__ == "__main__":
+    main()
