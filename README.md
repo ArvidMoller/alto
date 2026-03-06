@@ -8,7 +8,7 @@ convLSTM for predicting large scale cloud movments.
 4. [Train model](#train-model)
 5. [Predict with pre-trained model in the terminal](#predict-with-pre-trained-model-in-the-terminal)
 6. [Userinterface](#userinterface)
-7. [Precision data](#precision-data)
+7. [Accuracy data](#accuracy-data)
 8. [Time to generate images](#time-to-generate-images)
 
 ## Required Libraries
@@ -68,7 +68,7 @@ To start server and API:
 
 <hr>
 
-## Precision data
+## Accuracy data
 The following data is collected with a model trained with the following paramiters:
 - 32 filters on all layers
 - Tanh activation
@@ -77,13 +77,13 @@ The following data is collected with a model trained with the following paramite
 
 Precision is messured as a procentage of pixels within 10 gray-values between the generated image and the corresponding satellite image. Messurements were made over 5 sets of generated images, each set containing 10 images.
 
-A regression analysis was made on the mean precision, yeilding the following function:\
+A regression analysis was made on the mean precision, yeilding the following function. "x" represents the frame's number in the sequence and the function gives the expected accuracy of the frame:\
 $f(x)=18,097*0,907^x$
 
 <br>
 
-Mean precision over 5 predictions:
-| Number in sequence | Mean precision (%) |
+Mean accuracy over 5 predictions:
+| Number in sequence | Mean accuracy (%) |
 |-------------|---------------------------|
 | 1 | 18,8255 |
 | 2 | 14,5765 |
@@ -99,7 +99,7 @@ Mean precision over 5 predictions:
 <br>
 
 1st image-set:
-| Number in sequence | Precision (%) |
+| Number in sequence | Accuracy (%) |
 |-------------|---------------|
 | 1 | 14,394 |
 | 2 | 11,502 |
@@ -115,7 +115,7 @@ Mean precision over 5 predictions:
 <br>
 
 2nd image-set:
-| Number in sequence | Precision (%) |
+| Number in sequence | Accuracy (%) |
 |-------------|---------------|
 | 1 | 24,607 |
 | 2 | 18,865 |
@@ -131,7 +131,7 @@ Mean precision over 5 predictions:
 <br>
 
 3rd image-set:
-| Number in sequence | Precision (%) |
+| Number in sequence | Accuracy (%) |
 |-------------|---------------|
 | 1 | 24,747 |
 | 2 | 18,356 |
@@ -147,7 +147,7 @@ Mean precision over 5 predictions:
 <br>
 
 4th image-set:
-| Number in sequence | Precision (%) |
+| Number in sequence | Accuracy (%) |
 |-------------|---------------|
 | 1 | 13,851 |
 | 2 | 12,431 |
@@ -163,7 +163,7 @@ Mean precision over 5 predictions:
 <br>
 
 5th image-set:
-| Number in sequence | Precision (%) |
+| Number in sequence | Accuracy (%) |
 |-------------|---------------|
 | 1 | 11,554 |
 | 2 | 9,583 |
