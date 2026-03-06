@@ -8,6 +8,8 @@ convLSTM for predicting large scale cloud movments.
 4. [Train model](#train-model)
 5. [Predict with pre-trained model in the terminal](#predict-with-pre-trained-model-in-the-terminal)
 6. [Userinterface](#userinterface)
+7. [Precision data](#precision-data)
+8. [Time to generate images](#time-to-generate-images)
 
 ## Required Libraries
 - `keras`
@@ -62,4 +64,218 @@ Images for training needs to be downloaded localy from EUMETSATs API by unsing `
 To start server and API:
 1. Navigate to `\src\api` using `cd` in the terminal.
 2. Run: `fastapi dev apimain.py`
-3. Start localhost or other server to show the HTML document. 
+3. Start localhost or other server to show the HTML document.
+
+<hr>
+
+## Precision data
+The following data is collected with a model trained with the following paramiters:
+- 32 filters on all layers
+- Tanh activation
+- 5x5, 3x3, 1x1, 3x3x3 kernel size
+- MAE & SSIM coposite loss
+
+Precision is messured as a procentage of pixels within 10 gray-values between the generated image and the corresponding satellite image. Messurements were made over 5 sets of generated images, each set containing 10 images.
+
+A regression analysis was made on the mean precision, yeilding the following function:\
+$f(x)=18,097*0,907^x$
+
+<br>
+
+Mean precision over 5 predictions:
+| Number in sequence | Mean precision (%) |
+|-------------|---------------------------|
+| 1 | 18,8255 |
+| 2 | 14,5765 |
+| 3 | 12,83075 |
+| 4 | 11,538 |
+| 5 | 10,74125 |
+| 6 | 9,7295 |
+| 7 | 8,74125 |
+| 8 | 8,2615 |
+| 9 | 7,76575 |
+| 10 | 7,21625 |
+
+<br>
+
+1st image-set:
+| Number in sequence | Precision (%) |
+|-------------|---------------|
+| 1 | 14,394 |
+| 2 | 11,502 |
+| 3 | 10,786 |
+| 4 | 10,392 |
+| 5 | 10,415 |
+| 6 | 10,167 |
+| 7 | 9,807 |
+| 8 | 9,819 |
+| 9 | 9,6 |
+| 10 | 8,902 |
+
+<br>
+
+2nd image-set:
+| Number in sequence | Precision (%) |
+|-------------|---------------|
+| 1 | 24,607 |
+| 2 | 18,865 |
+| 3 | 16,253 |
+| 4 | 14,856 |
+| 5 | 13,559 |
+| 6 | 12,225 |
+| 7 | 10,712 |
+| 8 | 9,742 |
+| 9 | 8,818 |
+| 10 | 7,877 |
+
+<br>
+
+3rd image-set:
+| Number in sequence | Precision (%) |
+|-------------|---------------|
+| 1 | 24,747 |
+| 2 | 18,356 |
+| 3 | 15,559 |
+| 4 | 13,148 |
+| 5 | 11,716 |
+| 6 | 10,443 |
+| 7 | 8,783 |
+| 8 | 7,878 |
+| 9 | 7,405 |
+| 10 | 7,05 |
+
+<br>
+
+4th image-set:
+| Number in sequence | Precision (%) |
+|-------------|---------------|
+| 1 | 13,851 |
+| 2 | 12,431 |
+| 3 | 12,106 |
+| 4 | 10,802 |
+| 5 | 9,707 |
+| 6 | 8,914 |
+| 7 | 8,257 |
+| 8 | 7,71 |
+| 9 | 7,244 |
+| 10 | 7,933 |
+
+<br>
+
+5th image-set:
+| Number in sequence | Precision (%) |
+|-------------|---------------|
+| 1 | 11,554 |
+| 2 | 9,583 |
+| 3 | 8,725 |
+| 4 | 7,756 |
+| 5 | 7,275 |
+| 6 | 6,083 |
+| 7 | 5,663 |
+| 8 | 5,607 |
+| 9 | 5,24 |
+| 10 | 5,036 |
+
+<hr>
+
+## Time to generate images
+Messurements were made over 5 sets of generated images, each set containing 10 images. Times were messured with the following hardware:
+- CPU: AMD Ryzen 9 9900X
+- GPU: Nvidia RTX 5090
+- RAM: 128 GB, 5600 Hz
+
+<br>
+
+Mean generation-time:
+| Number in sequence | Mean time (milliseconds) |
+| ----------- | ------------------------------ |
+| 1           | 195,4                          |
+| 2           | 62,0                           |
+| 3           | 70,0                           |
+| 4           | 44,4                           |
+| 5           | 45,4                           |
+| 6           | 45,4                           |
+| 7           | 44,6                           |
+| 8           | 44,4                           |
+| 9           | 44,8                           |
+| 10          | 44,4                           |
+
+<br>
+
+1st image-set:
+| Number in sequence | Time (milliseconds) |
+| ----------- | ------------------- |
+| 1           | 202                 |
+| 2           | 88                  |
+| 3           | 45                  |
+| 4           | 44                  |
+| 5           | 45                  |
+| 6           | 45                  |
+| 7           | 44                  |
+| 8           | 44                  |
+| 9           | 45                  |
+| 10          | 44                  |
+
+<br>
+
+2nd image-set:
+| Number in sequence | Time (milliseconds) |
+| ----------- | ------------------- |
+| 1           | 193                 |
+| 2           | 45                  |
+| 3           | 85                  |
+| 4           | 45                  |
+| 5           | 45                  |
+| 6           | 45                  |
+| 7           | 45                  |
+| 8           | 45                  |
+| 9           | 45                  |
+| 10          | 45                  |
+
+<br>
+
+3rd image-set:
+| Number in sequence | Time (milliseconds) |
+| ----------- | ------------------- |
+| 1           | 196                 |
+| 2           | 47                  |
+| 3           | 91                  |
+| 4           | 45                  |
+| 5           | 49                  |
+| 6           | 49                  |
+| 7           | 46                  |
+| 8           | 44                  |
+| 9           | 45                  |
+| 10          | 45                  |
+
+<br>
+
+4th image-set:
+| Number in sequence | Time (milliseconds) |
+| ----------- | ------------------- |
+| 1           | 193                 |
+| 2           | 86                  |
+| 3           | 45                  |
+| 4           | 44                  |
+| 5           | 44                  |
+| 6           | 44                  |
+| 7           | 44                  |
+| 8           | 44                  |
+| 9           | 45                  |
+| 10          | 44                  |
+
+<br>
+
+5th  image-set:
+| Number in sequence | Time (milliseconds) |
+| ----------- | ------------------- |
+| 1           | 193                 |
+| 2           | 44                  |
+| 3           | 84                  |
+| 4           | 44                  |
+| 5           | 44                  |
+| 6           | 44                  |
+| 7           | 44                  |
+| 8           | 45                  |
+| 9           | 44                  |
+| 10          | 44                  |
