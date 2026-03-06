@@ -24,9 +24,9 @@ from tqdm import tqdm
 ssl._create_default_https_context = ssl._create_unverified_context
 warnings.simplefilter("ignore")
 
-# Insert your personal key and secret into the single quotes
-consumer_key = 'C7TfIeUyTcIySIZJFfJzQtrSCnga'
-consumer_secret = 'fnflmHejlSooN3clA5vyEnJFVuwa'
+# Insert your personal key and secret
+consumer_key = input("Insert your consumer key: ")
+consumer_secret = input("Insert your consumer secret: ")
 
 # Provide the credentials (key, secret) for generating a token
 credentials = (consumer_key, consumer_secret)
