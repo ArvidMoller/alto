@@ -1,0 +1,17 @@
+trained with same composite loss as model6, but with 20 epochs and more images.
+
+Dataset shape: [10132, 10, 482, 578, 1]
+Input range high: 1
+Input range low: -1
+Epochs: 20
+Batch size: 5
+First layer filters: 32
+Second layer filters: 32
+Third layer filters: 32
+3D layer filters: 1
+First layer kernel size: 5, 5
+Second layer kernel size: 3, 3
+Third layer kernel size: 1, 1
+3D layer kernel size: 3, 3, 3
+
+Model started training 2026-02-18 17:42:38.709086 and finished training 2026-02-20 22:41:51.700809

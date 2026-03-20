@@ -1,0 +1,17 @@
+trained with more epochs and images
+
+Dataset shape: [10132, 10, 482, 578, 1]
+Input range high: 1
+Input range low: 0
+Epochs: 75
+Batch size: 5
+First layer filters: 32
+Second layer filters: 32
+Third layer filters: 32
+3D layer filters: 1
+First layer kernel size: 5, 5
+Second layer kernel size: 3, 3
+Third layer kernel size: 1, 1
+3D layer kernel size: 3, 3, 3
+
+Model started training 2026-01-14 20:16:33.956137 and finished training 2026-01-16 16:53:59.326927

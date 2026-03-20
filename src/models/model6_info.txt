@@ -1,0 +1,17 @@
+small model for testing composite loss, 0.8*mae and 0.2*ssim
+
+Dataset shape: [1348, 10, 482, 578, 1]
+Input range high: 1
+Input range low: -1
+Epochs: 50
+Batch size: 5
+First layer filters: 32
+Second layer filters: 32
+Third layer filters: 32
+3D layer filters: 1
+First layer kernel size: 5, 5
+Second layer kernel size: 3, 3
+Third layer kernel size: 1, 1
+3D layer kernel size: 3, 3, 3
+
+Model started training 2026-02-05 12:36:10.926663 and finished training 2026-02-05 19:08:09.451418

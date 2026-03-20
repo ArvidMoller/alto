@@ -1,0 +1,17 @@
+General info about model: Not given
+
+Dataset shape: [379, 10, 482, 578, 1]
+Input range high: 1
+Input range low: -1
+Epochs: 1
+Batch size: 1
+First layer filters: Not given
+Second layer filters: 
+Third layer filters: Not given
+3D layer filters: Not given
+First layer kernel size: Not given
+Second layer kernel size: Not given
+Third layer kernel size: Not given
+3D layer kernel size: Not given
+
+Model started training 2026-02-06 13:30:25.241093 and finished training 2026-02-06 13:43:54.465998
