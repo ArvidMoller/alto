@@ -1,5 +1,5 @@
 # ALTO
-convLSTM for predicting large scale cloud movments.
+convLSTM for predicting large scale cloud movments. This project was done as a upper secondary school diploma project and a scientific poster (in Swedish), as well as sources and all results brought up in said poster (parts 7-10), are therefore linked in this readme.
 
 ## Table of Contents
 1. [Required Libraries](#required-libraries)  
@@ -10,6 +10,8 @@ convLSTM for predicting large scale cloud movments.
 6. [Userinterface](#userinterface)
 7. [Accuracy data](#accuracy-data)
 8. [Time to generate images](#time-to-generate-images)
+9. [Generated images](#generated-images)
+10. [Sources for poster](#sources-for-poster)
 
 ## Required Libraries
 - `keras`
@@ -66,8 +68,6 @@ To start server and API:
 2. Run: `fastapi dev apimain.py`
 3. Start localhost or other server to show the HTML document.
 
-<hr>
-
 ## Accuracy data
 The following data is collected with a model trained with the following paramiters:
 - 32 filters on all layers
@@ -79,8 +79,6 @@ Precision is messured as a procentage of pixels within 10 gray-values between th
 
 A regression analysis was made on the mean precision, yeilding the following function. "x" represents the frame's number in the sequence and the function gives the expected accuracy of the frame:\
 $f(x)=18,097*0,907^x$
-
-<br>
 
 Mean accuracy over 5 predictions:
 | Number in sequence | Mean accuracy (%) |
@@ -96,8 +94,6 @@ Mean accuracy over 5 predictions:
 | 9 | 7,76575 |
 | 10 | 7,21625 |
 
-<br>
-
 1st image-set:
 | Number in sequence | Accuracy (%) |
 |-------------|---------------|
@@ -111,8 +107,6 @@ Mean accuracy over 5 predictions:
 | 8 | 9,819 |
 | 9 | 9,6 |
 | 10 | 8,902 |
-
-<br>
 
 2nd image-set:
 | Number in sequence | Accuracy (%) |
@@ -128,8 +122,6 @@ Mean accuracy over 5 predictions:
 | 9 | 8,818 |
 | 10 | 7,877 |
 
-<br>
-
 3rd image-set:
 | Number in sequence | Accuracy (%) |
 |-------------|---------------|
@@ -143,8 +135,6 @@ Mean accuracy over 5 predictions:
 | 8 | 7,878 |
 | 9 | 7,405 |
 | 10 | 7,05 |
-
-<br>
 
 4th image-set:
 | Number in sequence | Accuracy (%) |
@@ -160,8 +150,6 @@ Mean accuracy over 5 predictions:
 | 9 | 7,244 |
 | 10 | 7,933 |
 
-<br>
-
 5th image-set:
 | Number in sequence | Accuracy (%) |
 |-------------|---------------|
@@ -176,15 +164,11 @@ Mean accuracy over 5 predictions:
 | 9 | 5,24 |
 | 10 | 5,036 |
 
-<hr>
-
 ## Time to generate images
 Messurements were made over 5 sets of generated images, each set containing 10 images. Times were messured with the following hardware:
 - CPU: AMD Ryzen 9 9900X
 - GPU: Nvidia RTX 5090
 - RAM: 128 GB, 5600 Hz
-
-<br>
 
 Mean generation-time:
 | Number in sequence | Mean time (milliseconds) |
@@ -200,8 +184,6 @@ Mean generation-time:
 | 9           | 44,8                           |
 | 10          | 44,4                           |
 
-<br>
-
 1st image-set:
 | Number in sequence | Time (milliseconds) |
 | ----------- | ------------------- |
@@ -215,8 +197,6 @@ Mean generation-time:
 | 8           | 44                  |
 | 9           | 45                  |
 | 10          | 44                  |
-
-<br>
 
 2nd image-set:
 | Number in sequence | Time (milliseconds) |
@@ -232,8 +212,6 @@ Mean generation-time:
 | 9           | 45                  |
 | 10          | 45                  |
 
-<br>
-
 3rd image-set:
 | Number in sequence | Time (milliseconds) |
 | ----------- | ------------------- |
@@ -247,8 +225,6 @@ Mean generation-time:
 | 8           | 44                  |
 | 9           | 45                  |
 | 10          | 45                  |
-
-<br>
 
 4th image-set:
 | Number in sequence | Time (milliseconds) |
@@ -264,8 +240,6 @@ Mean generation-time:
 | 9           | 45                  |
 | 10          | 44                  |
 
-<br>
-
 5th  image-set:
 | Number in sequence | Time (milliseconds) |
 | ----------- | ------------------- |
@@ -279,3 +253,13 @@ Mean generation-time:
 | 8           | 45                  |
 | 9           | 44                  |
 | 10          | 44                  |
+
+## Generated images
+The link below leads to a Google Drive where all generated images are stored in folders. All folders also include a `.txt` file with settings used in the generation and what model was used. 
+
+https://drive.google.com/drive/folders/1SHluCw8tG61whXpTKGgK37BQud0C8IcY?usp=sharing
+
+## Sources for poster
+Link to Google Docs with sources for poster.
+
+https://docs.google.com/document/d/1By0QQHDhVRtY7VlMwn3Efamda5_wBJhFOLfjVf-fHEE/edit?usp=sharing
