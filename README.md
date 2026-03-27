@@ -260,6 +260,10 @@ The link below leads to a Google Drive where all generated images are stored in 
 https://drive.google.com/drive/folders/1SHluCw8tG61whXpTKGgK37BQud0C8IcY?usp=sharing
 
 ## Sources for poster
-Link to Google Docs with sources for poster.
+Nicolas De Araújo Moreira, Rubem Vasconcelos, Yuri Carvalho Barbosa Silva, Tarcisio Ferreira Maciel, Ingrid Simoes, João César Moura Mota, Cerine Hamida, Rodrigo Zambrana Prado, Émilie Poisson Caillault, Modeste Kacou, et al. (2023) Convolutional Long-Short-Term Memory Networks (ConvLSTM) for Weather Prediction using Radar and Satellite Images. https://hal.science/hal-04079740v1/document
 
-https://docs.google.com/document/d/1By0QQHDhVRtY7VlMwn3Efamda5_wBJhFOLfjVf-fHEE/edit?usp=sharing
+Statens Meteorologiska och Hydrologiska Institut (SMHI). (n.d., retrieved 19-09-2025). Moln - bindningssätt. https://www.smhi.se/kunskapsbanken/meteorologi/moln/moln---bildningssatt
+
+EUMETSAT. (n.d., retrieved 28-09-2025) Meteosat series. https://www.eumetsat.int/our-satellites/meteosat-series 
+
+A. Moreno, Meteorolog, (personal communication, 12-09-2025)
