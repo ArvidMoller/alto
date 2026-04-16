@@ -42,6 +42,42 @@ a {
     position: relative; /* kan va felet hehe */
 }
 
+#hero {
+
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+}
+
+#heroImage {
+
+    width: 75vw;
+    filter: brightness(30%) opacity(100%);
+    z-index: 0;
+    position: fixed;
+    justify-content: center;
+    margin-top: auto;
+    
+
+}
+
+#heroImageBlur {
+
+    width: 75vw;
+    filter: blur(20px) brightness(30%);
+    z-index: 0;
+    position: fixed;
+    justify-content: center;
+    margin-top: auto;
+    
+
+}
+
 #shadowOverlay {
 
     height: 10rem;

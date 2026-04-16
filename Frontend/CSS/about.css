@@ -42,6 +42,52 @@ a {
     position: relative; /* kan va felet hehe */
 }
 
+#herotext{
+    width: 65vw;
+    margin-top: 30vh;
+    margin-left: 17.5vw;
+    margin-right: 17.5vw;
+    font-size: 3.5rem;
+    line-height: 75%;
+    position: relative; /* kan va felet hehe */
+}
+
+#hero {
+
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+}
+
+#heroImage {
+
+    width: 75vw;
+    filter: brightness(30%) opacity(100%);
+    z-index: 0;
+    position: fixed;
+    justify-content: center;
+    margin-top: auto;
+    
+
+}
+
+#heroImageBlur {
+
+    width: 75vw;
+    filter: blur(20px) brightness(30%);
+    z-index: 0;
+    position: fixed;
+    justify-content: center;
+    margin-top: auto;
+    
+
+}
+
 #shadowOverlay {
 
     height: 10rem;
@@ -51,5 +97,14 @@ a {
     position: fixed;
     bottom: 0;
     left: 0;
+
+}
+.abouttext {
+
+    width: 60%;
+    margin-top: 10rem;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: xx-large;
 
 }

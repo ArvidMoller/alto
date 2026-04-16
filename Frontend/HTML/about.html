@@ -26,7 +26,14 @@
             <h1 style="text-align: end"></h1>
         </section>
     </section>
+    <section id="hero">
+        <img id="heroImage" src="/Frontend/Media/Images/cloud.webp" alt="Cloud hero image" width="1440px">
+    </section>
 
     <section id="shadowOverlay"></section>
+
+    <p class="abouttext">Weather has affected mankind since the dawn of time, affecting crops, our ability to travel and our health. Predicting the weather therefore allows us to predict the future. ALTO is a ConvLSTM (Convolutional Long Short-Term Memory) model trained to predict large scale cloud movement using satellite imagery. In addition, the project was made in collaboration with SMHI, Sweden's National Meteorological and Hydrological Institute, with the objective to predict large scale cloud movement using a custom built deep learning model. The model was implemented and trained using a python script running a PyTorch backend, the Keras library for the ConvLSTM architecture, and a composite-loss function combining MAE and SSIM. Training data consisted of 578x482 pixels large satellite images from EUMETSAT’s API. Furthermore, a web application was developed for interacting with, reading about and using the model, in addition to training it. Lastly, a python application for testing the feasibility and precision of the proposed model was developed, by comparing the percentage of matching pixels within ten gray-values from each other between the predicted imagery with the real world data. By comparing 50 generated images with their real world counterparts, precision data was collected showing that the first predicted image in each sequence had the highest precision, at an average of ~18.8%, while the last image had an average precision of ~7.2%. This dropoff in precision is expected from an image generation algorithm, however, it could be reduced significantly with improved training parameters. The overall precision of the model could also be increased with optimized training. But despite this, the project achieved its goal of predicting cloud movements over northern Europe with reasonable accuracy.</p>
+
+
 </body>
 </html>
