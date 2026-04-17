@@ -58,24 +58,27 @@
 
     <script>
       async function predict() {
-        const images = document.querySelector(".images");
-        document.querySelector("#output2").innerText = "Kör...";
+          const images = document.querySelectorAll(".image");
+          document.querySelector("#output2").innerText = "Kör...";
 
-        const response = await fetch("http://127.0.0.1:8000/prediction", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        document.querySelector("#output2").innerText = "Uppdaterar...";
+          const response = await fetch("http://127.0.0.1:8000/prediction", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          document.querySelector("#output2").innerText = "Uppdaterar...";
 
-        const data = await response.json();
-        document.querySelector("#output2").innerText = "Avkodar...";
-        document.querySelector("#output2").innerText =
-          "Prediction was " + data.result;
-        images.style.visibility = "visible";
-      }
+          const data = await response.json();
+          document.querySelector("#output2").innerText = "Avkodar...";
+          document.querySelector("#output2").innerText = "Prediction was " + data.result;
 
+          images.forEach((img, index) => {
+            setTimeout(() => {
+              img.classList.add("loaded");
+            }, index * 50); 
+          });
+        }
     </script>
 
     <section id="shadowOverlay"></section>
