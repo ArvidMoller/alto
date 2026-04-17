@@ -91,11 +91,17 @@ a {
 
 }
 
-.bröd{
+.bread{
 
     width: 60%; 
     margin-left: auto; 
     margin-right: auto; 
     background-color: blue;
+
+}
+
+.images{
+
+    visibility: hidden;
 
 }

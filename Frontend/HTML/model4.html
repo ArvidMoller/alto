@@ -36,7 +36,7 @@
         <h1 style="text-align: end"></h1>
       </section>
 
-    </section class="bröd">
+    </section class="bread">
       <section id="hero">
           <img id="heroImage" src="/Frontend/Media/Images/cloud.webp" alt="Cloud hero image" width="1440px">
       </section>
@@ -45,17 +45,18 @@
       <p id="output"></p>
       <button onclick="predict()">Predict images</button>
       <p id="output2"></p>
-
-      <img src="/Frontend/Media/predict_images/1.png">
-      <img src="/Frontend/Media/predict_images/2.png">
-      <img src="/Frontend/Media/predict_images/3.png">
-      <img src="/Frontend/Media/predict_images/4.png">
-      <img src="/Frontend/Media/predict_images/5.png">
-      <img src="/Frontend/Media/predict_images/6.png">
-      <img src="/Frontend/Media/predict_images/7.png">
-      <img src="/Frontend/Media/predict_images/8.png">
-      <img src="/Frontend/Media/predict_images/9.png">
-      <img src="/Frontend/Media/predict_images/10.png">
+      <section class="images">
+        <img src="/Frontend/Media/predict_images/1.png">
+        <img src="/Frontend/Media/predict_images/2.png">
+        <img src="/Frontend/Media/predict_images/3.png">
+        <img src="/Frontend/Media/predict_images/4.png">
+        <img src="/Frontend/Media/predict_images/5.png">
+        <img src="/Frontend/Media/predict_images/6.png">
+        <img src="/Frontend/Media/predict_images/7.png">
+        <img src="/Frontend/Media/predict_images/8.png">
+        <img src="/Frontend/Media/predict_images/9.png">
+        <img src="/Frontend/Media/predict_images/10.png">
+      </section>
     </section>
 
     <script>
@@ -76,7 +77,9 @@
           "Resultat från Python: " + data.result;
       }
       async function predict() {
+        const images = document.querySelector("images");
         document.querySelector("#output2").innerText = "Kör...";
+        images.style.visibility = "hidden";
         const response = await fetch("http://127.0.0.1:8000/prediction", {
           method: "POST",
           headers: {
@@ -89,6 +92,7 @@
         document.querySelector("#output2").innerText = "Avkodar...";
         document.querySelector("#output2").innerText =
           "Prediction was " + data.result;
+        images.style.visibility = "visible";
       }
 
     </script>
