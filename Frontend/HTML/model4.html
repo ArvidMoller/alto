@@ -58,13 +58,8 @@
 
     <script>
       async function predict() {
-        const images = document.querySelectorAll(".image");
+        const images = document.querySelector(".images");
         document.querySelector("#output2").innerText = "Kör...";
-
-        // Fade out images first
-        images.forEach(img => {
-          img.classList.remove("loaded");
-        });
 
         const response = await fetch("http://127.0.0.1:8000/prediction", {
           method: "POST",
@@ -76,18 +71,11 @@
 
         const data = await response.json();
         document.querySelector("#output2").innerText = "Avkodar...";
-        document.querySelector("#output2").innerText = "Prediction was " + data.result;
+        document.querySelector("#output2").innerText =
+          "Prediction was " + data.result;
+        images.style.visibility = "visible";
+      }
 
-        // Update image sources with predicted images from backend
-        images.forEach((img, index) => {
-          img.src = data.images[index]; // Backend returns paths
-
-          // Fade in when each image loads
-          img.onload = () => {
-            img.classList.add("loaded");
-          };
-        });
-      };
     </script>
 
     <section id="shadowOverlay"></section>

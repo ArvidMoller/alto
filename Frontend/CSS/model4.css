@@ -111,28 +111,13 @@ a {
 }
 
 .images{
-    
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 10vw;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
-
 }
 
 .image{
 
     max-width: 20rem;
-    background-color: #1a1a1a;
-    aspect-ratio: 1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-
-}
-
-.image.loaded{
-
-    opacity: 1;
 
 }
