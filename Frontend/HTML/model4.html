@@ -58,27 +58,36 @@
 
     <script>
       async function predict() {
-          const images = document.querySelectorAll(".image");
-          document.querySelector("#output2").innerText = "Kör...";
+        const images = document.querySelectorAll(".image");
+        document.querySelector("#output2").innerText = "Kör...";
 
-          const response = await fetch("http://127.0.0.1:8000/prediction", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          document.querySelector("#output2").innerText = "Uppdaterar...";
+        // Fade out images first
+        images.forEach(img => {
+          img.classList.remove("loaded");
+        });
 
-          const data = await response.json();
-          document.querySelector("#output2").innerText = "Avkodar...";
-          document.querySelector("#output2").innerText = "Prediction was " + data.result;
+        const response = await fetch("http://127.0.0.1:8000/prediction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        document.querySelector("#output2").innerText = "Uppdaterar...";
 
-          images.forEach((img, index) => {
-            setTimeout(() => {
-              img.classList.add("loaded");
-            }, index * 50); 
-          });
-        }
+        const data = await response.json();
+        document.querySelector("#output2").innerText = "Avkodar...";
+        document.querySelector("#output2").innerText = "Prediction was " + data.result;
+
+        // Update image sources with predicted images from backend
+        images.forEach((img, index) => {
+          img.src = data.images[index]; // Backend returns paths
+
+          // Fade in when each image loads
+          img.onload = () => {
+            img.classList.add("loaded");
+          };
+        });
+      };
     </script>
 
     <section id="shadowOverlay"></section>
