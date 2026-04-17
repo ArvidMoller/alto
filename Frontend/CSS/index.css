@@ -39,7 +39,7 @@ a {
 
 #herotext{
     width: 65vw;
-    margin-top: 30vh;
+    margin-top: 14vh;
     margin-left: 17.5vw;
     margin-right: 17.5vw;
     font-size: 3.5rem;
@@ -87,7 +87,8 @@ a {
 
     display: flex;
     flex-direction: column;
-    margin: 20vw;
+    margin: 15vw;
+    margin-bottom: 10vw;
 
 }
 
@@ -97,6 +98,22 @@ a {
     font-size: 2rem;
     width: 45%;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+}
+
+.backgroundText:nth-of-type(odd) {
+
+    /* Push to left */
+    align-self: flex-start;
+    margin-right: auto;
+
+}
+
+.backgroundText:nth-of-type(even) {
+
+    /* Push to right */
+    align-self: flex-end;
+    margin-left: auto;
 
 }
 

@@ -32,7 +32,7 @@
       <section id="herotext" style="z-index: -1">
         <h1 style="text-align: center">MODEL7</h1>
         <h1 style="text-align: start"></h1>
-        <h5 style="text-align: center">[Prediction will be made here]</h5>
+        <h5 style="text-align: center">Prediction with the latest model here</h5>
         <h1 style="text-align: end"></h1>
       </section>
       <section id="hero">
@@ -61,7 +61,6 @@
         const images = document.querySelector(".images");
         document.querySelector("#output2").innerText = "Kör...";
 
-        document.querySelector("#output2").innerText = "Kör.";
         const response = await fetch("http://127.0.0.1:8000/prediction", {
           method: "POST",
           headers: {
