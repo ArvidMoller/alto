@@ -89,19 +89,32 @@ a {
     left: 0;
     pointer-events: none;
 
-}
+}   
 
 .bread{
 
-    width: 60%; 
+    width: 65%; 
     margin-left: auto; 
     margin-right: auto; 
-    background-color: blue;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+}
+
+#button{
+
+    width: 5rem;
 
 }
 
 .images{
+    margin-left: auto;
+    margin-right: auto;
+}
 
-    visibility: hidden;
+.image{
+
+    max-width: 20rem;
 
 }

@@ -35,51 +35,33 @@
         <h5 style="text-align: center">[Prediction will be made here]</h5>
         <h1 style="text-align: end"></h1>
       </section>
-
-    </section class="bread">
       <section id="hero">
           <img id="heroImage" src="/Frontend/Media/Images/cloud.webp" alt="Cloud hero image" width="1440px">
       </section>
-      <section>
-      <button onclick="run()">Kör Python</button>
-      <p id="output"></p>
-      <button onclick="predict()">Predict images</button>
+
+    <section class="bread">
+      <button id="button" onclick="predict()">Predict images</button>
       <p id="output2"></p>
       <section class="images">
-        <img src="/Frontend/Media/predict_images/1.png">
-        <img src="/Frontend/Media/predict_images/2.png">
-        <img src="/Frontend/Media/predict_images/3.png">
-        <img src="/Frontend/Media/predict_images/4.png">
-        <img src="/Frontend/Media/predict_images/5.png">
-        <img src="/Frontend/Media/predict_images/6.png">
-        <img src="/Frontend/Media/predict_images/7.png">
-        <img src="/Frontend/Media/predict_images/8.png">
-        <img src="/Frontend/Media/predict_images/9.png">
-        <img src="/Frontend/Media/predict_images/10.png">
+        <img class="image" src="/Frontend/Media/predict_images/0.png">
+        <img class="image" src="/Frontend/Media/predict_images/1.png">
+        <img class="image" src="/Frontend/Media/predict_images/2.png">
+        <img class="image" src="/Frontend/Media/predict_images/3.png">
+        <img class="image" src="/Frontend/Media/predict_images/4.png">
+        <img class="image" src="/Frontend/Media/predict_images/5.png">
+        <img class="image" src="/Frontend/Media/predict_images/6.png">
+        <img class="image" src="/Frontend/Media/predict_images/7.png">
+        <img class="image" src="/Frontend/Media/predict_images/8.png">
+        <img class="image" src="/Frontend/Media/predict_images/9.png">
       </section>
     </section>
 
     <script>
-      async function run() {
-        document.querySelector("#output").innerText = "Kör...";
-        const response = await fetch("http://127.0.0.1:8000/run", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ number: 7 }),
-        });
-        document.querySelector("#output").innerText = "Uppdaterar...";
-
-        const data = await response.json();
-        document.querySelector("#output").innerText = "Avkodar...";
-        document.querySelector("#output").innerText =
-          "Resultat från Python: " + data.result;
-      }
       async function predict() {
-        const images = document.querySelector("images");
+        const images = document.querySelector(".images");
         document.querySelector("#output2").innerText = "Kör...";
-        images.style.visibility = "hidden";
+
+        document.querySelector("#output2").innerText = "Kör.";
         const response = await fetch("http://127.0.0.1:8000/prediction", {
           method: "POST",
           headers: {
