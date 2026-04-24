@@ -8,10 +8,11 @@ convLSTM for predicting large scale cloud movments. This project was done as a u
 4. [Train model](#train-model)
 5. [Predict with pre-trained model in the terminal](#predict-with-pre-trained-model-in-the-terminal)
 6. [Userinterface](#userinterface)
-7. [Accuracy data](#accuracy-data)
-8. [Time to generate images](#time-to-generate-images)
-9. [Generated images](#generated-images)
-10. [Sources for poster](#sources-for-poster)
+7. [Scientific Poster](#scientific-poster)
+8. [Accuracy data](#accuracy-data)
+9. [Time to generate images](#time-to-generate-images)
+10. [Generated images](#generated-images)
+11. [Sources for poster](#sources-for-poster)
 
 ## Required Libraries
 - `keras`
@@ -67,6 +68,11 @@ To start server and API:
 1. Navigate to `\src\api` using `cd` in the terminal.
 2. Run: `fastapi dev apimain.py`
 3. Start localhost or other server to show the HTML document.
+
+## Scientific Poster
+Link to scientific poster in Google Presentation:
+
+https://docs.google.com/presentation/d/1kJX_que0zJExoy8H-IpkHZP6ymNiSo1P/edit?usp=sharing&ouid=112671010615464447290&rtpof=true&sd=true
 
 ## Accuracy data
 The following data is collected with a model trained with the following paramiters:
